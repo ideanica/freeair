@@ -1,0 +1,1148 @@
+{
+  "versi": "3.0.0",
+  "catatan": "Seluruh ambang berasal dari literatur klinis + baseline personal yang dihitung dari data sensor pemakai sendiri. Tidak ada angka yang diisi manual. Angka klinis hidup di blok `literatur`, bobot sinyal di blok `bobot`. Wajib divalidasi dokter sebelum dipakai untuk keputusan medis.",
+
+  "level_threshold": {
+    "AMAN": 0,
+    "WASPADA": 20,
+    "PERHATIAN": 45,
+    "BAHAYA": 70
+  },
+
+  "profil_default": {
+    "nama": "User",
+    "kondisi": ["Bronkitis Kronis", "Anxiety", "Alergi Dingin"]
+  },
+
+  "literatur": {
+    "spo2": {
+      "ringan": 94.0,
+      "sedang": 92.0,
+      "hipoksemia": 90.0,
+      "kritis": 88.0,
+      "konfirmasi_min_bacaan": 2,
+      "sumber": "GOLD 2024 Report (LTOT PaO2<=55 mmHg ~ SpO2<=88%, angkanya ada di dalam PDF laporan); BTS Guideline 2017, Thorax 72(Suppl 1):ii1 (target 88-92% pada risiko hiperkapnia, SaO2<90% = gagal napas tipe 1); StatPearls NBK482316 Hypoxia and Hypoxemia 2024 (band ringan 90-94%, sedang 80-89%)",
+      "sumber_en": "GOLD 2024 Report (LTOT PaO2<=55 mmHg ~ SpO2<=88%, the figure is inside the report PDF); BTS Guideline 2017, Thorax 72(Suppl 1):ii1 (target 88-92% when hypercapnia is a risk, SaO2<90% = type 1 respiratory failure); StatPearls NBK482316 Hypoxia and Hypoxemia 2024 (mild band 90-94%, moderate 80-89%)"
+    },
+    "desaturasi_personal": {
+      "drop_pct_min": 4.0,
+      "sumber": "AASM 2012 J Clin Sleep Med 8(5):597 (hipopnea = desaturasi >=3% dari baseline); Agarwal 2023 Lung India (desaturasi 6MWT >=4% dianggap bermakna); ISO 80601-2-61 ed2 2017 (akurasi pulse oximeter, direkoknisi FDA)",
+      "sumber_en": "AASM 2012 J Clin Sleep Med 8(5):597 (hypopnoea = desaturation >=3% from baseline); Agarwal 2023 Lung India (6MWT desaturation >=4% counted as significant); ISO 80601-2-61 ed2 2017 (pulse oximeter accuracy, recognised by the FDA)"
+    },
+    "laju_napas": {
+      "takipnea_ringan": 21.0,
+      "takipnea": 24.0,
+      "sumber": "NEWS2 RCP 2017 (RR 21-24 = 2 poin, >=25 = 3 poin; baris skor ada di PDF laporan); Farmer 2024 Chest (RR >20-24 meski terapi standar = pertimbangkan NIV, mengutip ERS/ATS); Blouet 2018 Int J Chron Obstruct Pulmon Dis (RR naik mendahului eksaserbasi)",
+      "sumber_en": "NEWS2 RCP 2017 (RR 21-24 = 2 points, >=25 = 3 points; the scoring row is in the report PDF); Farmer 2024 Chest (RR >20-24 despite standard therapy = consider NIV, citing ERS/ATS); Blouet 2018 Int J Chron Obstruct Pulmon Dis (RR rises ahead of an exacerbation)"
+    },
+    "detak_jantung": {
+      "takikardia_abs": 100.0,
+      "takikardia_berat_abs": 120.0,
+      "delta_baseline_waspada_bpm": 5.0,
+      "delta_baseline_bahaya_bpm": 8.0,
+      "sumber": "AHA WatchLearnLive (takikardia >100 bpm); Hawthorne 2022 Respir Res 23:102 (prodrome: HR +8,1 bpm dan RR +2,0 hingga 3 hari sebelum eksaserbasi); Montenegro 2026 JMIR Med Inform (tinjauan yang mengutipnya); Sanchez-Morillo 2026 Bioengineering 13(10):1195",
+      "sumber_en": "AHA WatchLearnLive (tachycardia >100 bpm); Hawthorne 2022 Respir Res 23:102 (prodrome: HR +8.1 bpm and RR +2.0 up to 3 days before an exacerbation); Montenegro 2026 JMIR Med Inform (review citing it); Sanchez-Morillo 2026 Bioengineering 13(10):1195"
+    },
+    "hrv_rmssd": {
+      "floor_ms": 20.0,
+      "drop_pct_waspada": 10.0,
+      "drop_pct_perhatian": 25.0,
+      "sumber": "Umetani 1998 J Am Coll Cardiol 31:59-65 (HRV 24 jam turun tercepat mulai dekade keenam; angka RMSSD per dekade tidak terbaca dari abstrak, jadi floor 20 ms dipakai sebagai pembulatan bawah); Shaffer & Ginsberg 2017 Front Public Health 5:230 (RMSSD 5 menit supine 42+/-15 ms); Tegegne 2019 Eur J Prev Cardiol (referensi RMSSD populasi); Chalmers 2014 Front Psychiatry 5:80 (HRV rendah pada gangguan kecemasan); Kim 2018 Psychiatry Investig (stres akut menurunkan HRV); pita Garmin HRV +/-10% dan -25% dari baseline pribadi",
+      "sumber_en": "Umetani 1998 J Am Coll Cardiol 31:59-65 (24-hour HRV falls fastest from the sixth decade; per-decade RMSSD values cannot be read off the abstract, so 20 ms is used as a lower floor); Shaffer & Ginsberg 2017 Front Public Health 5:230 (5-minute supine RMSSD 42+/-15 ms); Tegegne 2019 Eur J Prev Cardiol (population RMSSD reference); Chalmers 2014 Front Psychiatry 5:80 (low HRV in anxiety disorders); Kim 2018 Psychiatry Investig (acute stress lowers HRV); Garmin HRV band +/-10% and -25% from personal baseline"
+    },
+    "tidur": {
+      "durasi_jam_min": 7.0,
+      "efisiensi_pct_min": 85.0,
+      "waso_menit_min": 31.0,
+      "sumber": "AASM/SRS 2015, Sleep 38:843 (>=7 jam dewasa); ICSD-3 AASM 2014 + kriteria Perlis (efisiensi <85% terverifikasi di literatur insomnia, WASO >=31 mnt adalah konvensi klasifikasi); Ben Simon 2020 Nat Hum Behav 4:100 (tidur terfragmentasi -> kecemasan hari berikutnya)",
+      "sumber_en": "AASM/SRS 2015, Sleep 38:843 (>=7 hours for adults); ICSD-3 AASM 2014 + Perlis criteria (efficiency <85% verified in the insomnia literature; WASO >=31 min is a classification convention); Ben Simon 2020 Nat Hum Behav 4:100 (fragmented sleep -> next-day anxiety)"
+    },
+    "udara_dingin": {
+      "suhu_waspada": 22.0,
+      "suhu_perhatian": 18.0,
+      "suhu_bahaya": 12.0,
+      "drop_baseline_waspada_c": 5.0,
+      "drop_baseline_bahaya_c": 8.0,
+      "kelembapan_kering_pct": 30.0,
+      "kelembapan_sangat_kering_pct": 10.0,
+      "angin_waspada_ms": 4.0,
+      "angin_bahaya_ms": 8.0,
+      "sumber": "Hanstock 2020 Front Sports Act Living (satu studi dalam tabelnya: delta FEV1 -19+/-4,9% pada udara dingin-kering; kelembapan rendah lebih kuat daripada suhu); Van Gerven 2012 Laryngoscope 122:2615 (udara -10 C dan RH <10% selama 15 menit, uji positif = PNIF turun >20%); Graudenz 2006 J Allergy Clin Immunol 118:1126 (selisih suhu chamber 12 C memicu respons nasal); Kwon 2016 Allergy Asthma Immunol Res (angin kencang + kelembapan rendah menaikkan kunjungan IGD asma)",
+      "sumber_en": "Hanstock 2020 Front Sports Act Living (one study in its table: delta FEV1 -19+/-4.9% in cold-dry air; low humidity weighs more than temperature); Van Gerven 2012 Laryngoscope 122:2615 (-10 C air at RH <10% for 15 minutes, positive test = PNIF drop >20%); Graudenz 2006 J Allergy Clin Immunol 118:1126 (a 12 C chamber difference triggers a nasal response); Kwon 2016 Allergy Asthma Immunol Res (high wind plus low humidity raises asthma ER visits)"
+    },
+    "partikulat": {
+      "pm25_waspada": 35.4,
+      "pm25_perhatian": 55.4,
+      "pm25_bahaya": 150.4,
+      "sumber": "US EPA/AirNow AQI Technical Assistance Document Tabel 6 (PM2.5 24 jam 35,5-55,4 ug/m3 = Unhealthy for Sensitive Groups); WHO Global Air Quality Guidelines 2021 (24-jam 15 ug/m3); DeVries 2017 COPD 14:113 (+2,5% kunjungan IGD/rawat COPD per +10 ug/m3, eksposur jangka pendek)",
+      "sumber_en": "US EPA/AirNow AQI Technical Assistance Document Table 6 (PM2.5 24-hour 35.5-55.4 ug/m3 = Unhealthy for Sensitive Groups); WHO Global Air Quality Guidelines 2021 (24-hour 15 ug/m3); DeVries 2017 COPD 14:113 (+2.5% COPD ER visits/admissions per +10 ug/m3, short-term exposure)"
+    },
+    "aktivitas": {
+      "olahraga_protektif_menit": 30.0,
+      "olahraga_minim_menit": 15.0,
+      "olahraga_berat_menit": 45.0,
+      "sumber": "ACSM Position Stand 2011 (Garber), Med Sci Sports Exerc 43:1334 (>=30 menit/hari pada >=5 hari/minggu); Weiler 2016 J Allergy Clin Immunol 138:1292 (tinjauan bronkokonstriksi akibat olahraga); Hanstock 2020 (memburuk pada udara dingin dan kering)",
+      "sumber_en": "ACSM Position Stand 2011 (Garber), Med Sci Sports Exerc 43:1334 (>=30 min/day on >=5 days/week); Weiler 2016 J Allergy Clin Immunol 138:1292 (review of exercise-induced bronchoconstriction); Hanstock 2020 (worse in cold, dry air)"
+    },
+    "siklus": {
+      "hr_naik_pct": 10.0,
+      "hrv_turun_pct": 9.0,
+      "sumber": "Alzueta 2022 Int J Womens Health 14:491 (HR naik pada luteal tengah-akhir, n=26, HR saat tidur); de Jager 2026 Sports Medicine (time-domain HRV 3-9% lebih rendah di akhir siklus); Johnson 2026 medRxiv preprint (pergeseran absolut RHR 1,5-4 bpm)",
+      "sumber_en": "Alzueta 2022 Int J Womens Health 14:491 (HR rises in mid-to-late luteal, n=26, sleeping HR); de Jager 2026 Sports Medicine (time-domain HRV 3-9% lower late in the cycle); Johnson 2026 medRxiv preprint (absolute RHR shift 1.5-4 bpm)"
+    },
+    "offset_suhu_personal": {
+      "sangat_dingin": 10.0,
+      "dingin": 5.0,
+      "mendekati": 0.0,
+      "sumber": "Offset struktural terhadap ambang personal, meniru berjenjangnya protokol provokasi udara dingin (PNIF turun >=20% = positif).",
+      "sumber_en": "Structural offsets against the personal threshold, mirroring the tiers of a cold-air provocation protocol (PNIF drop >=20% = positive)."
+    }
+  },
+
+  "dinamis": {
+    "jendela_hari": 28,
+    "minimum_hari_personal": 14,
+    "minimum_hari_sebagian": 7,
+    "bobot_campur_personal": 0.6,
+    "outlier_mad_score": 3.5,
+    "faktor_variabilitas_pribadi": 2.0,
+    "sumber": "median + MAD (Iglewicz & Hoaglin 1993, modifikasi z = 0.6745*(x-median)/MAD, outlier |z|>3.5); jendela trailing 28 malam mengikuti Oura HRV Balance (14 hari vs baseline 3 bulan); Garmin Training Readiness memakai rata-rata 7 hari dalam pita baseline pribadi; Wu 2021 JMIR Mhealth Uhealth 9(5):e22591 (prediksi eksaserbasi 7 hari ke depan)",
+    "sumber_en": "median + MAD (Iglewicz & Hoaglin 1993, modified z = 0.6745*(x-median)/MAD, outlier |z|>3.5); trailing 28-night window following Oura HRV Balance (14 days against a 3-month baseline); Garmin Training Readiness uses a 7-day mean inside the personal baseline band; Wu 2021 JMIR Mhealth Uhealth 9(5):e22591 (exacerbation prediction up to 7 days ahead)",
+    "metrik": {
+      "resting_hr": {"label": "Detak jantung istirahat", "label_en": "Resting heart rate", "satuan": "bpm", "ekstrem": "tinggi"},
+      "hrv_rmssd": {"label": "HRV (RMSSD)", "label_en": "HRV (RMSSD)", "satuan": "ms", "ekstrem": "rendah"},
+      "spo2": {"label": "Saturasi oksigen", "label_en": "Oxygen saturation", "satuan": "%", "ekstrem": "rendah"},
+      "resp_rate": {"label": "Laju napas", "label_en": "Breathing rate", "satuan": "x/mnt", "ekstrem": "tinggi"},
+      "tidur_menit": {"label": "Durasi tidur", "label_en": "Sleep duration", "satuan": "mnt", "ekstrem": "rendah"},
+      "tidur_efisiensi": {"label": "Efisiensi tidur", "label_en": "Sleep efficiency", "satuan": "%", "ekstrem": "rendah"},
+      "suhu_ambient": {"label": "Suhu lingkungan", "label_en": "Ambient temperature", "satuan": "°C", "ekstrem": "dua arah"},
+      "angin_ms": {"label": "Kecepatan angin", "label_en": "Wind speed", "satuan": "m/s", "ekstrem": "tinggi"},
+      "pm25": {"label": "PM2.5", "label_en": "PM2.5", "satuan": "µg/m³", "ekstrem": "tinggi"},
+      "hr_avg": {"label": "Detak jantung rata-rata", "label_en": "Average heart rate", "satuan": "bpm", "ekstrem": "tinggi"},
+      "olahraga_menit": {"label": "Olahraga tercatat", "label_en": "Recorded exercise", "satuan": "mnt", "ekstrem": "dua arah"}
+    }
+  },
+
+  "pembelajaran_ambang_dingin": {
+    "reaksi_hr_delta_bpm": 8.0,
+    "reaksi_rr_min": 21.0,
+    "reaksi_rr_delta": 4.0,
+    "reaksi_spo2_drop_pct": 4.0,
+    "minimum_kejadian": 3,
+    "margin_aman_c": 1.0,
+    "sumber": "Ambang personal = suhu lingkungan TERWARMAT di mana reaksi fisiologis tercatat (prinsip provocation testing; PNIF turun >=20% dianggap positif, Van Gerven 2012). Sebelum 3 kejadian, angka dicampur dengan band literatur.",
+      "sumber_en": "Personal threshold = the WARMEST ambient temperature at which a physiological reaction was recorded (provocation testing principle; a PNIF drop >=20% counts as positive, Van Gerven 2012). Below 3 recorded events the figure is blended with the literature band.",
+    "catatan": "Kejadian reaksi dicari sendiri dari riwayat sampel siklus, bukan dari laporan manual.",
+      "catatan_en": "Reaction events are found in the cycle sample history itself, never from a manual report."
+  },
+
+  "bobot": {
+    "Bronkitis": {
+      "spo2_absolut": {
+        "hipoksemia_tidak_dikonfirmasi": 25,
+        "hipoksemia_dikonfirmasi": 40,
+        "sedang_tidak_dikonfirmasi": 18,
+        "sedang_dikonfirmasi": 30,
+        "ringan": 15
+      },
+      "spo2_desaturasi_personal": 20,
+      "laju_napas": {"takipnea": 25, "takipnea_ringan": 12},
+      "hr_deviasi_baseline": {"bahaya": 20, "waspada": 10},
+      "tidur_durasi": {"min": 10},
+      "tidur_efisiensi": {"min": 8},
+      "pm25": {"bahaya": 25, "perhatian": 15, "waspada": 8},
+      "luteal": {"syarat_skor": 20, "bobot": 5}
+    },
+    "Anxiety": {
+      "hrv_deviasi_baseline": {"perhatian": 35, "waspada": 18},
+      "hrv_floor": {"floor": 20},
+      "hr_deviasi_baseline": {"bahaya": 25, "waspada": 12},
+      "hr_absolut": {"berat": 25, "takikardia": 15},
+      "tidur_durasi": {"min": 15},
+      "tidur_efisiensi": {"min": 12},
+      "tidur_waso": {"min": 8},
+      "olahraga": {"protektif": -10, "minim": 5},
+      "luteal": 10,
+      "menstruasi": 5
+    },
+    "Alergi Dingin": {
+      "suhu_terhadap_ambang_personal": {
+        "sangat_dingin": 30,
+        "dingin": 20,
+        "mendekati": 10
+      },
+      "suhu_drop_baseline": {"bahaya": 15, "waspada": 10},
+      "kelembapan": {"sangat_kering": 15, "kering": 10},
+      "angin": {"bahaya": 15, "waspada": 8},
+      "hr_deviasi_baseline": {"bahaya": 20, "waspada": 10},
+      "olahraga": {"berat": 10},
+      "luteal": 10
+    }
+  },
+
+  "intervensi": {
+    "Bronkitis": {
+      "AMAN": "",
+      "WASPADA": "Pantau napas. Tunda aktivitas berat sampai laju napas dan saturasi kembali ke baseline-mu.",
+      "PERHATIAN": "Duduk tegak, pursed-lip breathing. Cek inhaler/obat. Suhu {suhu}C dan PM2.5 {pm25} ug/m3 ikut dinilai.",
+      "BAHAYA": "Istirahat total. Saturasi {spo2}% vs baseline {spo2_baseline}%. Hubungi dokter/IGD bila sesak memberat."
+    },
+    "Anxiety": {
+      "AMAN": "",
+      "WASPADA": "Napas 4-7-8 selama 3 menit. HRV-mu turun ke {hrv} ms.",
+      "PERHATIAN": "Grounding 5-4-3-2-1. Jauhkan pemicu. Tidur {tidur_jam} jam dan HRV {hrv} ms ikut menekan.",
+      "BAHAYA": "Duduk, minum air hangat, napas dalam. HR {hr} bpm vs baseline {hr_baseline} bpm. Hubungi support bila tidak mereda."
+    },
+    "Alergi Dingin": {
+      "AMAN": "",
+      "WASPADA": "Pakai jaket sebelum keluar. Suhu {suhu}C, angin {angin} m/s, RH {rh}%.",
+      "PERHATIAN": "Lapisan hangat + tutup hidung-mulut agar udara terhangatkan. Suhu {suhu}C di bawah ambang personalmu {ambang_dingin}C.",
+      "BAHAYA": "Tetap di dalam ruangan. Suhu {suhu}C dengan angin {angin} m/s. Pakai pakaian hangat berlapis."
+    }
+  },
+  "intervensi_en": {
+    "Bronkitis": {
+      "AMAN": "",
+      "WASPADA": "Keep an eye on your breathing. Delay heavy activity until breathing rate and saturation are back to your baseline.",
+      "PERHATIAN": "Sit upright, pursed-lip breathing. Check your inhaler/medication. Temperature {suhu}C and PM2.5 {pm25} ug/m3 are part of this reading too.",
+      "BAHAYA": "Complete rest. Saturation {spo2}% against a {spo2_baseline}% baseline. Call a doctor or the ER if breathlessness worsens."
+    },
+    "Anxiety": {
+      "AMAN": "",
+      "WASPADA": "4-7-8 breathing for 3 minutes. Your HRV has dropped to {hrv} ms.",
+      "PERHATIAN": "5-4-3-2-1 grounding. Move away from triggers. {tidur_jam} hours of sleep and {hrv} ms HRV are weighing on this too.",
+      "BAHAYA": "Sit down, drink warm water, breathe deeply. HR {hr} bpm against a {hr_baseline} bpm baseline. Reach out for support if it does not settle."
+    },
+    "Alergi Dingin": {
+      "AMAN": "",
+      "WASPADA": "Put on a jacket before going out. Temperature {suhu}C, wind {angin} m/s, RH {rh}%.",
+      "PERHATIAN": "Warm layers plus cover nose and mouth so the air warms first. Temperature {suhu}C is below your personal threshold {ambang_dingin}C.",
+      "BAHAYA": "Stay indoors. Temperature {suhu}C with {angin} m/s wind. Wear warm, layered clothing."
+    }
+  },
+
+  "sumber_riset": {
+    "catatan": "Setiap tautan di daftar ini dibuka dan dicocokkan dengan isinya. Entri bertanda perlu dicek adalah tautan yang benar tapi penerbitnya menolak pembacaan otomatis (403/reCAPTCHA/redirect berbayar), sehingga angkanya harus dibaca manusia sebelum dipakai untuk keputusan medis. Tiga kutipan lama yang tidak berhasil diverifikasi di PubMed maupun Europe PMC sudah diganti dengan sumber yang benar-benar ada, dan angka yang hanya muncul di abstrak tidak dipakai sebagai ambang.",
+    "catatan_en": "Every link in this list was opened and matched against its contents. Entries marked for manual checking are real links whose publisher refuses automated reading (403/reCAPTCHA/paid redirect), so their figures need a human before any medical decision. Three older citations that could not be verified in PubMed or Europe PMC were replaced with sources that genuinely exist, and figures that only appear in an abstract are never used as a threshold.",
+    "kelompok": [
+      {
+        "judul": "Oksigen & napas",
+        "judul_en": "Oxygen & breathing",
+        "deskripsi": "Menetapkan band SpO2, ambang desaturasi personal, dan takipnea untuk kondisi Bronkitis Kronis.",
+        "deskripsi_en": "Sets the SpO2 bands, the personal desaturation threshold, and tachypnoea for chronic bronchitis.",
+        "sumber": [
+          {
+            "judul": "2024 GOLD Report: Global Strategy for the Diagnosis, Management and Prevention of COPD",
+            "penulis": "Global Initiative for Chronic Obstructive Lung Disease",
+            "tahun": "2024",
+            "terbitan": "GOLD",
+            "tipe": "pedoman",
+            "url": "https://goldcopd.org/2024-gold-report/",
+            "menetapkan": [
+              "SpO2 kritis 88% (padanan ambang LTOT PaO2<=55 mmHg)",
+              "definisi bronkitis kronis yang dipantau"
+            ],
+            "status": "perlu_cek",
+            "catatan": "Angka LTOT ada di dalam PDF laporan, bukan di halaman rangkuman ini.",
+            "menetapkan_en": [
+              "Critical SpO2 88% (matches the LTOT threshold PaO2<=55 mmHg)",
+              "the chronic bronchitis definition being monitored"
+            ],
+            "catatan_en": "The LTOT figure is inside the report PDF, not on this summary page."
+          },
+          {
+            "judul": "British Thoracic Society guideline for oxygen use in adults in healthcare and emergency settings",
+            "penulis": "O'Driscoll BR, Howard LS, Earis J, Mak V",
+            "tahun": "2017",
+            "terbitan": "Thorax 72(Suppl 1):ii1-ii90",
+            "tipe": "pedoman",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5531304/",
+            "menetapkan": [
+              "target saturasi 88-92% pada risiko hiperkapnia",
+              "SpO2 <90% = gagal napas tipe 1"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "saturation target 88-92% when hypercapnia is a risk",
+              "SpO2 <90% = type 1 respiratory failure"
+            ]
+          },
+          {
+            "judul": "Hypoxia and Hypoxemia (StatPearls)",
+            "penulis": "Bhutta BS, Alghoula F, Berim I",
+            "tahun": "2024",
+            "terbitan": "StatPearls Publishing, PMID 29493941",
+            "tipe": "jurnal",
+            "url": "https://www.ncbi.nlm.nih.gov/books/NBK482316/",
+            "menetapkan": [
+              "band ringan 90-94%",
+              "band sedang 80-89%"
+            ],
+            "status": "perlu_cek",
+            "catatan": "Identitas artikel terverifikasi lewat Europe PMC; halamannya sendiri menolak pembacaan otomatis (reCAPTCHA).",
+            "menetapkan_en": [
+              "mild band 90-94%",
+              "moderate band 80-89%"
+            ],
+            "catatan_en": "Article identity verified through Europe PMC; the page itself refuses automated reading (reCAPTCHA)."
+          },
+          {
+            "judul": "Rules for Scoring Respiratory Events in Sleep: Update of the 2007 AASM Manual",
+            "penulis": "Berry RB, Budhiraja R, Gottlieb DJ, dkk.",
+            "tahun": "2012",
+            "terbitan": "J Clin Sleep Med 8(5):597-619",
+            "tipe": "pedoman",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3459210/",
+            "menetapkan": [
+              "desaturasi >=3% dari baseline = hipopnea ter Skor, jadi ambang personal 4% sengaja lebih ketat"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "desaturation >=3% from baseline = hypopnoea in the AASM score, so the personal 4% threshold is deliberately stricter"
+            ]
+          },
+          {
+            "judul": "Early versus non-early desaturation during 6MWT in COPD patients: a follow-up study",
+            "penulis": "Agarwal M, dkk.",
+            "tahun": "2023",
+            "terbitan": "Lung India 40:235-241",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10298809/",
+            "menetapkan": [
+              "drop SpO2 >=4% dari baseline personal = desaturasi bermakna"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "SpO2 drop >=4% from personal baseline = significant desaturation"
+            ]
+          },
+          {
+            "judul": "National Early Warning Score (NEWS) 2: standardising the assessment of acute-illness severity in the NHS",
+            "penulis": "Royal College of Physicians",
+            "tahun": "2017",
+            "terbitan": "RCP London",
+            "tipe": "pedoman",
+            "url": "https://www.rcp.ac.uk/media/a4ibkkbf/news2-final-report_0_0.pdf",
+            "menetapkan": [
+              "takipnea ringan RR 21",
+              "takipnea RR 24"
+            ],
+            "status": "perlu_cek",
+            "catatan": "Baris skor laju napas ada di dalam PDF laporan.",
+            "menetapkan_en": [
+              "mild tachypnoea RR 21",
+              "tachypnoea RR 24"
+            ],
+            "catatan_en": "The breathing-rate scoring row is inside the report PDF."
+          },
+          {
+            "judul": "Prediction of severe acute exacerbation using changes in breathing pattern in COPD patients",
+            "penulis": "Blouet S, Sutter J, Fresnel E, dkk.",
+            "tahun": "2018",
+            "terbitan": "Int J Chron Obstruct Pulmon Dis",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6118244/",
+            "menetapkan": [
+              "alasan laju napas diberi bobot walau belum melewati ambang absolut"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "why breathing rate is weighted before it crosses an absolute threshold"
+            ]
+          },
+          {
+            "judul": "Applying Noninvasive Ventilation in Treatment of Acute Exacerbation of COPD Using Evidence-Based Interprofessional Clinical Practice",
+            "penulis": "Farmer MJS, Callahan CM, Hughes AM, Riska KL, Hill NS",
+            "tahun": "2024",
+            "terbitan": "Chest",
+            "tipe": "pedoman",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11177098/",
+            "menetapkan": [
+              "RR >24 sebagai pemicu NIV (rumus asli pedoman: RR >20-24 meski terapi standar)"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "RR >24 as an NIV trigger (original guideline wording: RR >20-24 despite standard therapy)"
+            ]
+          },
+          {
+            "judul": "ISO 80601-2-61: Medical electrical equipment - Part 2-61 (pulse oximeter equipment), edisi 2",
+            "penulis": "International Organization for Standardization",
+            "tahun": "2017",
+            "terbitan": "Diakui FDA (standard id 37508)",
+            "tipe": "standar",
+            "url": "https://www.accessdata.fda.gov/scripts/cdrh/cfdocs/cfstandards/detail.cfm?standard__identification_no=37508",
+            "menetapkan": [
+              "konfirmasi_min_bacaan 2: akurasi alat melarang satu pembacaan tunggal"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "konfirmasi_min_bacaan 2: instrument accuracy forbids relying on a single reading"
+            ]
+          },
+          {
+            "judul": "Vital signs - MedlinePlus Medical Encyclopedia",
+            "penulis": "NIH National Library of Medicine",
+            "tahun": "2024",
+            "terbitan": "MedlinePlus",
+            "tipe": "web",
+            "url": "https://medlineplus.gov/ency/article/002341.htm",
+            "menetapkan": [
+              "rentang laju napas normal 12-18/menit",
+              "nadi istirahat normal 60-100 bpm"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "normal breathing rate range 12-18/min",
+              "normal resting pulse 60-100 bpm"
+            ]
+          },
+          {
+            "judul": "Pulse Oximetry - MedlinePlus Medical Test",
+            "penulis": "NIH National Library of Medicine",
+            "tahun": "2024",
+            "terbitan": "MedlinePlus",
+            "tipe": "web",
+            "url": "https://medlineplus.gov/lab-tests/pulse-oximetry/",
+            "menetapkan": [
+              "SpO2 normal 95-100% sebagai puncak pita literatur"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "normal SpO2 95-100% as the top of the literature band"
+            ]
+          }
+        ]
+      },
+      {
+        "judul": "Jantung & variabilitas denyut",
+        "judul_en": "Heart & rate variability",
+        "deskripsi": "Menetapkan takikardia absolut, deviasi RHR terhadap baseline, dan pita penurunan HRV.",
+        "deskripsi_en": "Sets absolute tachycardia, RHR deviation from baseline, and the HRV drop bands.",
+        "sumber": [
+          {
+            "judul": "Tachycardia (Arrhythmias) - Watch, Learn, Live",
+            "penulis": "American Heart Association",
+            "tahun": "2024",
+            "terbitan": "heart.org",
+            "tipe": "pedoman",
+            "url": "https://watchlearnlive.heart.org/?moduleSelect=arrhyt",
+            "menetapkan": [
+              "takikardia absolut 100 bpm",
+              "takikardia berat 120 bpm adalah pembulatan klinis, bukan angka AHA"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "absolute tachycardia 100 bpm",
+              "severe tachycardia 120 bpm is a clinical rounding, not an AHA figure"
+            ]
+          },
+          {
+            "judul": "A proof of concept for continuous, non-invasive, free-living vital signs monitoring to predict readmission following an acute exacerbation of COPD",
+            "penulis": "Hawthorne G, Richardson M, Greening NJ, dkk.",
+            "tahun": "2022",
+            "terbitan": "Respiratory Research 23:102, PMID 35473718",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9044843/",
+            "menetapkan": [
+              "deviasi RHR +5 bpm (waspada) dan +8 bpm (bahaya)",
+              "jendela prodrome 3 hari"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "RHR deviation +5 bpm (watch) and +8 bpm (danger)",
+              "3-day prodrome window"
+            ]
+          },
+          {
+            "judul": "AI and Internet of Things for COPD Remote Monitoring: Systematic Review",
+            "penulis": "Montenegro M, dkk.",
+            "tahun": "2026",
+            "terbitan": "JMIR Medical Informatics",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13148758/",
+            "menetapkan": [
+              "penegas bahwa prodrome HR +8,1 bpm / RR +2,0 berasal dari Hawthorne"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "confirmation that the HR +8.1 bpm / RR +2.0 prodrome comes from Hawthorne"
+            ]
+          },
+          {
+            "judul": "Multimodal Prodromal Patterns Associated with COPD Exacerbations in Home Telemonitoring",
+            "penulis": "Sanchez-Morillo D, Camacho-Magriñán P, León-Jiménez A",
+            "tahun": "2026",
+            "terbitan": "Bioengineering 13(10):1195",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13701270/",
+            "menetapkan": [
+              "pemilihan RHR + HRV sebagai sinyal prodromal, bukan HR harian saja"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "choosing RHR + HRV as prodromal signals instead of daily HR alone"
+            ]
+          },
+          {
+            "judul": "Twenty-Four Hour Time Domain Heart Rate Variability and Heart Rate: Relations to Age and Gender Over Nine Decades",
+            "penulis": "Umetani K, Singer DH, McCraty R, Atkinson M",
+            "tahun": "1998",
+            "terbitan": "J Am Coll Cardiol 31(1):59-65",
+            "tipe": "jurnal",
+            "url": "https://doi.org/10.1016/S0735-1097(97)00554-8",
+            "menetapkan": [
+              "floor RMSSD 20 ms (HRV menurun tajam mulai dekade keenam)"
+            ],
+            "status": "perlu_cek",
+            "catatan": "Tabel RMSSD per dekade tidak terbaca dari abstrak; DOI yang benar 10.1016/S0735-1097(97)00554-8.",
+            "menetapkan_en": [
+              "RMSSD floor 20 ms (HRV falls sharply from the sixth decade)"
+            ],
+            "catatan_en": "The per-decade RMSSD table cannot be read from the abstract; the correct DOI is 10.1016/S0735-1097(97)00554-8."
+          },
+          {
+            "judul": "An Overview of Heart Rate Variability Metrics and Norms",
+            "penulis": "Shaffer F, Ginsberg JP",
+            "tahun": "2017",
+            "terbitan": "Front Public Health 5:230",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5624990/",
+            "menetapkan": [
+              "acuan RMSSD 42+/-15 ms untuk pita deviasi personal"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "RMSSD reference 42+/-15 ms used for the personal deviation band"
+            ]
+          },
+          {
+            "judul": "Reference values of heart rate variability from 10-second resting electrocardiograms: the Lifelines Cohort Study",
+            "penulis": "Tegegne BS, dkk.",
+            "tahun": "2019",
+            "terbitan": "Eur J Prev Cardiol",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7734556/",
+            "menetapkan": [
+              "populasi referensi tempat median riwayat pemakai dibandingkan"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "the reference population your history median is compared against"
+            ]
+          },
+          {
+            "judul": "Anxiety Disorders are Associated with Reduced Heart Rate Variability: A Meta-Analysis",
+            "penulis": "Chalmers JA, Quintana DS, Abbott M, Kemp AH",
+            "tahun": "2014",
+            "terbitan": "Front Psychiatry 5:80",
+            "tipe": "jurnal",
+            "url": "https://www.frontiersin.org/journals/psychiatry/articles/10.3389/fpsyt.2014.00080/full",
+            "menetapkan": [
+              "HRV turun 10% = waspada, 25% = perhatian pada Anxiety"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "HRV down 10% = watch, 25% = attention for Anxiety"
+            ]
+          },
+          {
+            "judul": "Stress and Heart Rate Variability: A Meta-Analysis and Systematic Review of Acute Stress Testing Studies",
+            "penulis": "Kim HG, Cheon EJ, Bai DS, Lee YH, Koo BH",
+            "tahun": "2018",
+            "terbitan": "Psychiatry Investig 15(3):211-221",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5900369/",
+            "menetapkan": [
+              "alasan kecemasan dibaca lewat HRV, bukan hanya lewat detak jantung"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "why anxiety is read through HRV, not only through heart rate"
+            ]
+          }
+        ]
+      },
+      {
+        "judul": "Tidur",
+        "judul_en": "Sleep",
+        "deskripsi": "Menetapkan durasi minimum, efisiensi minimum, dan WASO.",
+        "deskripsi_en": "Sets minimum duration, minimum efficiency, and WASO.",
+        "sumber": [
+          {
+            "judul": "Recommended Amount of Sleep for a Healthy Adult: A Joint Consensus Statement of the AASM and SRS",
+            "penulis": "Watson NF, dkk.",
+            "tahun": "2015",
+            "terbitan": "Sleep 38(5):843-847",
+            "tipe": "pedoman",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4434546/",
+            "menetapkan": [
+              "durasi tidur minimum 7 jam"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "minimum sleep duration 7 hours"
+            ]
+          },
+          {
+            "judul": "International Classification of Sleep Disorders, edisi ke-3 (ICSD-3)",
+            "penulis": "American Academy of Sleep Medicine",
+            "tahun": "2014",
+            "terbitan": "AASM",
+            "tipe": "buku",
+            "url": "https://aasm.org/clinical-resources/international-classification-sleep-disorders/",
+            "menetapkan": [
+              "efisiensi tidur minimum 85%",
+              "WASO 31 menit"
+            ],
+            "status": "perlu_cek",
+            "catatan": "Efisiensi <85% terverifikasi di literatur insomnia (PMC10281288); ambang WASO berasal dari buku ICSD-3 dan tidak terbaca dari halaman publik.",
+            "menetapkan_en": [
+              "minimum sleep efficiency 85%",
+              "WASO 31 minutes"
+            ],
+            "catatan_en": "Efficiency <85% is verified in the insomnia literature (PMC10281288); the WASO threshold comes from the ICSD-3 book and is not readable from a public page."
+          },
+          {
+            "judul": "Overanxious and Underslept: Reciprocal Relationship Between Objective Fragmented Sleep and Next-Day Anxiety",
+            "penulis": "Ben Simon E, Rossi A, Harvey AG, Walker MP",
+            "tahun": "2020",
+            "terbitan": "Nature Human Behaviour 4:100-110",
+            "tipe": "jurnal",
+            "url": "https://doi.org/10.1038/s41562-019-0754-8",
+            "menetapkan": [
+              "bobot sinyal tidur & WASO pada kondisi Anxiety"
+            ],
+            "status": "perlu_cek",
+            "catatan": "Halaman nature.com mengembalikan redirect berbayar; DOI tervalidasi lewat Europe PMC.",
+            "menetapkan_en": [
+              "weight of the sleep & WASO signals for Anxiety"
+            ],
+            "catatan_en": "nature.com returns a paid redirect; the DOI was validated through Europe PMC."
+          }
+        ]
+      },
+      {
+        "judul": "Udara dingin & angin",
+        "judul_en": "Cold air & wind",
+        "deskripsi": "Menetapkan band suhu literatur, ambang kering, kecepatan angin, dan cara ambang dingin personal dipelajari.",
+        "deskripsi_en": "Sets the literature temperature bands, dry-air thresholds, wind speed, and how the personal cold threshold is learned.",
+        "sumber": [
+          {
+            "judul": "Exercise in Sub-zero Temperatures and Airway Health: Implications for Athletes",
+            "penulis": "Hanstock A, Ainegren M, Stenfors LE",
+            "tahun": "2020",
+            "terbitan": "Front Sports Act Living 2:627743",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7739679/",
+            "menetapkan": [
+              "band suhu waspada 22 C / perhatian 18 C / bahaya 12 C",
+              "kelembapan kering 30%: kelembapan lebih kuat daripada suhu"
+            ],
+            "status": "terverifikasi",
+            "catatan": "Delta FEV1 -19+/-4,9% berasal dari satu studi dalam tabel review, bukan rata-rata lintas studi.",
+            "menetapkan_en": [
+              "temperature bands: watch 22 C / attention 18 C / danger 12 C",
+              "dry humidity 30%: humidity weighs more than temperature"
+            ],
+            "catatan_en": "Delta FEV1 -19+/-4.9% comes from one study inside the review's table, not an average across studies."
+          },
+          {
+            "judul": "Short-time cold dry air exposure: a useful diagnostic tool for nasal hyperresponsiveness",
+            "penulis": "Van Gerven L, Boeckxstaens G, Jorissen M, Fokkens W, Hellings PW",
+            "tahun": "2012",
+            "terbitan": "Laryngoscope 122(12):2615-2620, PMID 22865676",
+            "tipe": "jurnal",
+            "url": "https://pubmed.ncbi.nlm.nih.gov/22865676/",
+            "menetapkan": [
+              "prinsip provokasi: uji positif = PNIF turun >20%",
+              "margin_aman_dingin 1 C di atas suhu reaksi terakhir"
+            ],
+            "status": "perlu_cek",
+            "catatan": "Penerbit (Wiley) menolak pembacaan otomatis; rekaman NCBI dan DOI 10.1002/lary.23495 terverifikasi.",
+            "menetapkan_en": [
+              "provocation principle: positive test = PNIF drop >20%",
+              "margin_aman_dingin 1 C above the last recorded reaction temperature"
+            ],
+            "catatan_en": "The publisher (Wiley) blocks automated reading; the NCBI record and DOI 10.1002/lary.23495 are verified."
+          },
+          {
+            "judul": "The role of allergic rhinitis in nasal responses to sudden temperature changes",
+            "penulis": "Graudenz GS, Landgraf RG, Jancar S, dkk.",
+            "tahun": "2006",
+            "terbitan": "J Allergy Clin Immunol 118(5):1126-1132",
+            "tipe": "jurnal",
+            "url": "https://doi.org/10.1016/j.jaci.2006.07.005",
+            "menetapkan": [
+              "penurunan suhu mendadak (drop 5 C / 8 C terhadap baseline) dinilai terpisah dari suhu absolut"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "sudden temperature drops (5 C / 8 C against baseline) are scored separately from absolute temperature"
+            ]
+          },
+          {
+            "judul": "Emergency Department Visits for Asthma Exacerbation due to Weather Conditions and Air Pollution in Chuncheon, Korea",
+            "penulis": "Kwon JW, dkk.",
+            "tahun": "2016",
+            "terbitan": "Allergy Asthma Immunol Res 8(6):512, PMID 27582402",
+            "tipe": "jurnal",
+            "url": "https://e-aair.org/DOIx.php?id=10.4168/aair.2016.8.6.512",
+            "menetapkan": [
+              "angin waspada 4 m/s dan bahaya 8 m/s",
+              "kelembapan sangat kering 10%"
+            ],
+            "status": "perlu_cek",
+            "catatan": "Arah hubungan (angin kencang + RH rendah menaikkan kunjungan IGD) terverifikasi; angka +19,8% per 1 m/s tidak terbaca dari abstrak sehingga tidak dipakai.",
+            "menetapkan_en": [
+              "wind watch 4 m/s and danger 8 m/s",
+              "very dry air 10%"
+            ],
+            "catatan_en": "The direction of the relationship (high wind plus low RH raises ER visits) is verified; the +19.8% per 1 m/s figure cannot be read from the abstract, so it is not used."
+          }
+        ]
+      },
+      {
+        "judul": "Kualitas udara",
+        "judul_en": "Air quality",
+        "deskripsi": "Menetapkan tiga tingkat PM2.5 dan alasan bobotnya.",
+        "deskripsi_en": "Sets the three PM2.5 tiers and the reason behind their weights.",
+        "sumber": [
+          {
+            "judul": "Technical Assistance Document for the Reporting of Daily Air Quality - the Air Quality Index (AQI), Tabel 6 Breakpoints",
+            "penulis": "US EPA / AirNow",
+            "tahun": "2024",
+            "terbitan": "document.airnow.gov",
+            "tipe": "pedoman",
+            "url": "https://document.airnow.gov/technical-assistance-document-for-the-reporting-of-daily-air-quailty.pdf",
+            "menetapkan": [
+              "PM2.5 waspada 35,4",
+              "perhatian 55,4",
+              "bahaya 150,4 ug/m3"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "PM2.5 watch 35.4",
+              "attention 55.4",
+              "danger 150.4 ug/m3"
+            ]
+          },
+          {
+            "judul": "AQI Basics",
+            "penulis": "US EPA / AirNow",
+            "tahun": "2024",
+            "terbitan": "airnow.gov",
+            "tipe": "web",
+            "url": "https://www.airnow.gov/aqi/aqi-basics/",
+            "menetapkan": [
+              "enam kategori AQI yang dipakai untuk bahasa tampilan"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "the six AQI categories used for display wording"
+            ]
+          },
+          {
+            "judul": "WHO global air quality guidelines: particulate matter (PM2.5 and PM10), ozone, nitrogen dioxide, sulfur dioxide and carbon monoxide",
+            "penulis": "World Health Organization",
+            "tahun": "2021",
+            "terbitan": "WHO, ISBN 9789240034228",
+            "tipe": "pedoman",
+            "url": "https://www.who.int/publications/i/item/9789240034228",
+            "menetapkan": [
+              "PM2.5 24-jam 15 ug/m3 sebagai tujuan jangka panjang"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "PM2.5 24-hour 15 ug/m3 as the long-term target"
+            ]
+          },
+          {
+            "judul": "Outdoor Air Pollution and COPD-Related Emergency Department Visits, Hospital Admissions, and Mortality: A Meta-Analysis",
+            "penulis": "DeVries R, Kriebel D, Sama S",
+            "tahun": "2017",
+            "terbitan": "COPD 14(1):113-121",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8994423/",
+            "menetapkan": [
+              "+2,5% kunjungan IGD/rawat COPD per +10 ug/m3, jadi PM2.5 diberi bobot di bawah ambang EPA"
+            ],
+            "status": "terverifikasi",
+            "catatan": "Eksposur jangka pendek. Klaim lama 'Zhu 2020' tidak ditemukan di PubMed/Europe PMC dan sudah dihapus dari konfigurasi.",
+            "menetapkan_en": [
+              "+2.5% COPD ER visits/admissions per +10 ug/m3, so PM2.5 is weighted even below the EPA threshold"
+            ],
+            "catatan_en": "Short-term exposure. The older 'Zhu 2020' claim was not found in PubMed/Europe PMC and has been removed from the configuration."
+          }
+        ]
+      },
+      {
+        "judul": "Aktivitas & siklus hormon",
+        "judul_en": "Activity & hormonal cycle",
+        "deskripsi": "Menetapkan dosis olahraga protektif/berat dan pergeseran fase siklus.",
+        "deskripsi_en": "Sets protective and heavy exercise doses plus cycle phase shifts.",
+        "sumber": [
+          {
+            "judul": "American College of Sports Medicine Position Stand: Quantity and Quality of Exercise for Developing and Maintaining Cardiorespiratory Fitness",
+            "penulis": "Garber CE, Blissmer B, Deschenes MR, dkk.",
+            "tahun": "2011",
+            "terbitan": "Med Sci Sports Exerc 43(7):1334-1359",
+            "tipe": "pedoman",
+            "url": "https://doi.org/10.1249/MSS.0b013e318213fefb",
+            "menetapkan": [
+              "olahraga protektif >=30 menit",
+              "olahraga minim <15 menit"
+            ],
+            "status": "terverifikasi",
+            "catatan": "Tahun yang benar 2011 dan dosisnya >=30 menit/hari pada >=5 hari/minggu; kutipan lama 'ACSM 2021' sudah dikoreksi.",
+            "menetapkan_en": [
+              "protective exercise >=30 minutes",
+              "minimal exercise <15 minutes"
+            ],
+            "catatan_en": "The correct year is 2011 and the dose is >=30 min/day on >=5 days/week; the older 'ACSM 2021' citation has been corrected."
+          },
+          {
+            "judul": "Exercise-induced bronchoconstriction update-2016",
+            "penulis": "Weiler JM, Brannan JD, Randolph CC, dkk.",
+            "tahun": "2016",
+            "terbitan": "J Allergy Clin Immunol 138(5):1292-1295",
+            "tipe": "jurnal",
+            "url": "https://doi.org/10.1016/j.jaci.2016.05.029",
+            "menetapkan": [
+              "olahraga berat >=45 menit menambah skor pada Alergi Dingin"
+            ],
+            "status": "terverifikasi",
+            "catatan": "Kutipan lama 'Egger 2016 Eur Respir J' tidak ditemukan dan sudah diganti dengan tinjauan 2016 yang setara.",
+            "menetapkan_en": [
+              "heavy exercise >=45 minutes adds score for Alergi Dingin"
+            ],
+            "catatan_en": "The older citation 'Egger 2016 Eur Respir J' was not found and has been replaced with an equivalent 2016 review."
+          },
+          {
+            "judul": "Tracking Sleep, Temperature, Heart Rate, and Daily Symptoms Across the Menstrual Cycle with the Oura Ring in Healthy Women",
+            "penulis": "Alzueta E, de Zambotti M, Javitz H, dkk.",
+            "tahun": "2022",
+            "terbitan": "Int J Womens Health 14:491-503",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9005074/",
+            "menetapkan": [
+              "HR naik >=10% di fase luteal memberi skor",
+              "sumber hari siklus otomatis dari Health Connect"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "HR rise >=10% in the luteal phase contributes score",
+              "automatic cycle-day source from Health Connect"
+            ]
+          },
+          {
+            "judul": "Wearable-Derived Heart Rate Variability Across the Menstrual Cycle, Hormonal Contraceptive Use, and Reproductive Life Stages: A Living Systematic Review",
+            "penulis": "de Jager E, Caulfield B, Angelidi E, MacNamee B, Holden S",
+            "tahun": "2026",
+            "terbitan": "Sports Medicine",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC13198475/",
+            "menetapkan": [
+              "HRV turun 9% di akhir siklus sebagai syarat, bukan kepastian"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "HRV down 9% late in the cycle as a requirement, not a certainty"
+            ]
+          },
+          {
+            "judul": "Decoding menstrual health across the lifespan: a scoping review of digital health tools in research",
+            "penulis": "Johnson SC, O'Day J, Kraus E, Delp S, Hicks J",
+            "tahun": "2026",
+            "terbitan": "medRxiv (preprint), DOI 10.1101/2025.09.24.25336575",
+            "tipe": "jurnal",
+            "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12889786/",
+            "menetapkan": [
+              "pergeseran absolut RHR 1,5-4 bpm sebagai pita toleransi"
+            ],
+            "status": "perlu_cek",
+            "catatan": "Masih preprint dan rentang yang tertulis 1,5-4 bpm (bukan 5 bpm seperti kutipan lama).",
+            "menetapkan_en": [
+              "absolute RHR shift 1.5-4 bpm used as a tolerance band"
+            ],
+            "catatan_en": "Still a preprint, and the range stated is 1.5-4 bpm (not 5 bpm as in the older citation)."
+          }
+        ]
+      },
+      {
+        "judul": "Metode baseline dinamis",
+        "judul_en": "Dynamic baseline method",
+        "deskripsi": "Dasar statistik dan praktik produk wearable untuk menghitung ambang personal dari riwayat sendiri.",
+        "deskripsi_en": "The statistics and wearable-product practice behind computing personal thresholds from your own history.",
+        "sumber": [
+          {
+            "judul": "How to Detect and Handle Outliers (The ASQC Basic References in Quality Control, vol. 16)",
+            "penulis": "Iglewicz S, Hoaglin DC",
+            "tahun": "1993",
+            "terbitan": "ASQC Quality Press, ISBN 0-87389-247-X",
+            "tipe": "buku",
+            "url": "https://hwbdocs.env.nm.gov/Los%20Alamos%20National%20Labs/TA%2054/11587.pdf",
+            "menetapkan": [
+              "modifikasi z = 0.6745*(x-median)/MAD",
+              "outlier dibuang pada |z| > 3,5"
+            ],
+            "status": "terverifikasi",
+            "catatan": "Penerbit ASQ memblokir akses otomatis; tautan ini full-text buku yang sama.",
+            "menetapkan_en": [
+              "modified z = 0.6745*(x-median)/MAD",
+              "outliers dropped at |z| > 3.5"
+            ],
+            "catatan_en": "The ASQ publisher blocks automated access; this link is the full text of the same book."
+          },
+          {
+            "judul": "Median absolute deviation",
+            "penulis": "Wikipedia contributors",
+            "tahun": "2026",
+            "terbitan": "Wikipedia",
+            "tipe": "web",
+            "url": "https://en.wikipedia.org/wiki/Median_absolute_deviation",
+            "menetapkan": [
+              "konstanta konsistensi 1/0,67449 = 1,4826 untuk data normal"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "consistency constant 1/0.67449 = 1.4826 for normal data"
+            ]
+          },
+          {
+            "judul": "What is HRV Balance?",
+            "penulis": "Oura",
+            "tahun": "2024",
+            "terbitan": "Oura Blog",
+            "tipe": "web",
+            "url": "https://ouraring.com/blog/hrv-balance/",
+            "menetapkan": [
+              "jendela trailing 28 malam",
+              "hari sakit dikeluarkan dari perhitungan baseline"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "trailing 28-night window",
+              "sick days excluded from the baseline calculation"
+            ]
+          },
+          {
+            "judul": "Training Readiness",
+            "penulis": "Garmin Technology",
+            "tahun": "2024",
+            "terbitan": "garmin.com",
+            "tipe": "web",
+            "url": "https://www.garmin.com/en-US/garmin-technology/running-science/physiological-measurements/training-readiness/",
+            "menetapkan": [
+              "pita deviasi +/-10% dan -25% dari baseline pribadi"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "deviation bands +/-10% and -25% from personal baseline"
+            ]
+          },
+          {
+            "judul": "HRV Status on Compatible Garmin Devices",
+            "penulis": "Garmin Support",
+            "tahun": "2024",
+            "terbitan": "support.garmin.com",
+            "tipe": "web",
+            "url": "https://support.garmin.com/en-US/?faq=HnFAR4oFRF4kHeqYme3bU6",
+            "menetapkan": [
+              "tier personal butuh 14 hari, meniru 3 minggu data yang diminta Garmin"
+            ],
+            "status": "perlu_cek",
+            "catatan": "Halaman dukungan menolak fetch otomatis (HTTP 403) meski hidup di browser.",
+            "menetapkan_en": [
+              "the personal tier needs 14 days, mirroring the three weeks of data Garmin asks for"
+            ],
+            "catatan_en": "The support page refuses automated fetch (HTTP 403) although it loads fine in a browser."
+          },
+          {
+            "judul": "Acute Exacerbation of a Chronic Obstructive Pulmonary Disease Prediction System Using Wearable Device Data, Machine Learning, and Deep Learning",
+            "penulis": "Wu CT, dkk.",
+            "tahun": "2021",
+            "terbitan": "JMIR Mhealth Uhealth 9(5):e22591",
+            "tipe": "jurnal",
+            "url": "https://mhealth.jmir.org/2021/5/e22591",
+            "menetapkan": [
+              "jendela 7 hari sebagai tier sebagian sebelum baseline penuh"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "7-day window as the partial tier before a full baseline"
+            ]
+          }
+        ]
+      },
+      {
+        "judul": "Sumber data & perangkat",
+        "judul_en": "Data sources & devices",
+        "deskripsi": "Empat aliran data yang membuat aplikasi ini tanpa input manual: sensor, cuaca, kualitas udara, dan riwayat lokal.",
+        "deskripsi_en": "The four data streams that make this app free of manual input: sensors, weather, air quality, and local history.",
+        "sumber": [
+          {
+            "judul": "Data Prakiraan Cuaca Terbuka BMKG",
+            "penulis": "Badan Meteorologi, Klimatologi, dan Geofisika",
+            "tahun": "2026",
+            "terbitan": "data.bmkg.go.id",
+            "tipe": "api",
+            "url": "https://data.bmkg.go.id/prakiraan-cuaca/",
+            "menetapkan": [
+              "suhu, kelembapan, kecepatan & arah angin",
+              "kode wilayah adm4 per Kepmendagri 100.1.1-6117/2022"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "temperature, humidity, wind speed and direction",
+              "adm4 region codes per Kepmendagri 100.1.1-6117/2022"
+            ]
+          },
+          {
+            "judul": "Endpoint prakiraan cuaca BMKG yang dipanggil aplikasi",
+            "penulis": "BMKG",
+            "tahun": "2026",
+            "terbitan": "api.bmkg.go.id",
+            "tipe": "api",
+            "url": "https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=35.10.07.2008",
+            "menetapkan": [
+              "field t, hu, ws, wd, weather_desc, local_datetime yang di-parse WeatherService"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "the fields t, hu, ws, wd, weather_desc, local_datetime parsed by WeatherService"
+            ]
+          },
+          {
+            "judul": "Open-Meteo Air Quality API",
+            "penulis": "Open-Meteo",
+            "tahun": "2026",
+            "terbitan": "open-meteo.com",
+            "tipe": "api",
+            "url": "https://open-meteo.com/en/docs/air-quality-api",
+            "menetapkan": [
+              "PM2.5 tanpa API key, dipakai hanya bila BMKG mengirim koordinat"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "PM2.5 without an API key, used only when BMKG supplies coordinates"
+            ]
+          },
+          {
+            "judul": "CAMS global reanalysis (EAC4)",
+            "penulis": "Copernicus Atmosphere Monitoring Service",
+            "tahun": "2024",
+            "terbitan": "Copernicus Atmosphere Data Store",
+            "tipe": "dataset",
+            "url": "https://ads.atmosphere.copernicus.eu/datasets/cams-global-reanalysis-eac4",
+            "menetapkan": [
+              "model di balik angka PM2.5 yang dikirim Open-Meteo"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "the model behind the PM2.5 figures Open-Meteo returns"
+            ]
+          },
+          {
+            "judul": "CAMS European air quality forecasts",
+            "penulis": "Copernicus Atmosphere Monitoring Service",
+            "tahun": "2024",
+            "terbitan": "Copernicus Atmosphere Data Store",
+            "tipe": "dataset",
+            "url": "https://ads.atmosphere.copernicus.eu/datasets/cams-europe-air-quality-forecasts",
+            "menetapkan": [
+              "grid 11 km untuk wilayah Eropa, 40/45 km untuk global"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "11 km grid for Europe, 40/45 km for the rest of the world"
+            ]
+          },
+          {
+            "judul": "Health Connect",
+            "penulis": "Google / Android Developers",
+            "tahun": "2026",
+            "terbitan": "developer.android.com",
+            "tipe": "api",
+            "url": "https://developer.android.com/health-and-fitness/health-connect",
+            "menetapkan": [
+              "izin READ_* yang dideklarasikan di AndroidManifest.xml"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "the READ_* permissions declared in AndroidManifest.xml"
+            ]
+          },
+          {
+            "judul": "Health Connect data types",
+            "penulis": "Google / Android Developers",
+            "tahun": "2026",
+            "terbitan": "developer.android.com",
+            "tipe": "api",
+            "url": "https://developer.android.com/health-and-fitness/health-connect/data-types",
+            "menetapkan": [
+              "RestingHeartRateRecord, HeartRateVariabilityRmssdRecord, OxygenSaturationRecord, RespiratoryRateRecord, SleepSessionRecord, ExerciseSessionRecord, StepsRecord, CycleTrackingDef"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "RestingHeartRateRecord, HeartRateVariabilityRmssdRecord, OxygenSaturationRecord, RespiratoryRateRecord, SleepSessionRecord, ExerciseSessionRecord, StepsRecord, CycleTrackingDef"
+            ]
+          },
+          {
+            "judul": "health_connector (paket Flutter)",
+            "penulis": "leown / pub.dev",
+            "tahun": "2026",
+            "terbitan": "pub.dev",
+            "tipe": "paket",
+            "url": "https://pub.dev/packages/health_connector",
+            "menetapkan": [
+              "jembatan Dart ke Health Connect, dipin ^2.4.0 di pubspec.yaml"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "the Dart bridge to Health Connect, pinned ^2.4.0 in pubspec.yaml"
+            ]
+          },
+          {
+            "judul": "url_launcher (paket Flutter)",
+            "penulis": "Flutter Team",
+            "tahun": "2026",
+            "terbitan": "pub.dev",
+            "tipe": "paket",
+            "url": "https://pub.dev/packages/url_launcher",
+            "menetapkan": [
+              "pembuka tautan di layar ini"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "the link opener used on this screen"
+            ]
+          },
+          {
+            "judul": "Dataset simulasi 28 hari (benih riwayat)",
+            "penulis": "Repo ini: lib/services/health_service_demo.dart",
+            "tahun": "2026",
+            "terbitan": "kode lokal",
+            "tipe": "dataset",
+            "url": "",
+            "menetapkan": [
+              "benih baseline saat aplikasi pertama dibuka",
+              "3 hari dingin agar ambang dingin personal bisa langsung dipelajari"
+            ],
+            "status": "terverifikasi",
+            "menetapkan_en": [
+              "baseline seed for when the app is first opened",
+              "3 cold days so the personal cold threshold can start learning right away"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+
+  "deduplikasi": {
+    "kirim_ulang_setelah_menit": 60,
+    "kirim_ulang_jika_level_berubah": true,
+    "jangan_kirim_jika_level_AMAN": true
+  }
+}

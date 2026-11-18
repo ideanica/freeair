@@ -1,0 +1,119 @@
+{
+  "versi": "2.0.0",
+  "level_threshold": {
+    "AMAN": 0,
+    "WASPADA": 20,
+    "PERHATIAN": 45,
+    "BAHAYA": 70
+  },
+  "profil_default": {
+    "nama": "User",
+    "kondisi": [
+      "Bronkitis Kronis",
+      "Anxiety",
+      "Alergi Dingin"
+    ],
+    "ambang_suhu_alergi": 20.0,
+    "hr_warning": 100,
+    "hr_bahaya": 120
+  },
+  "bronkitis": {
+    "spo2": {
+      "<90_unconfirmed": 25,
+      "<90_confirmed": 40,
+      "<92_unconfirmed": 18,
+      "<92_confirmed": 30,
+      "<94": 15
+    },
+    "heart_rate": {
+      ">hr_bahaya": 25,
+      ">hr_warning": 15
+    },
+    "sleep_quality": {
+      "<0.3": 15,
+      "<0.5": 10
+    },
+    "stress": {
+      ">=8": 10,
+      ">=7": 5
+    },
+    "exercise": {
+      ">60_dan_skor>=30": 10
+    },
+    "luteal": {
+      "skor>=20": 5
+    }
+  },
+  "anxiety": {
+    "stress": {
+      ">=9": 40,
+      ">=8": 30,
+      ">=7": 20,
+      ">=5": 10
+    },
+    "heart_rate": {
+      ">hr_bahaya": 20,
+      ">hr_warning": 12
+    },
+    "sleep_quality": {
+      "<0.3": 20,
+      "<0.5": 12
+    },
+    "luteal": 10,
+    "menstruasi": 5,
+    "exercise": {
+      ">=30": -10,
+      "<15": 5
+    }
+  },
+  "alergi_dingin": {
+    "suhu_personal": {
+      "<=ambang-10": 30,
+      "<=ambang-5": 20,
+      "<=ambang": 10
+    },
+    "heart_rate": {
+      ">hr_bahaya": 25,
+      ">hr_warning": 15
+    },
+    "stress": {
+      ">=8": 20,
+      ">=7": 12
+    },
+    "exercise": {
+      ">45": 10
+    },
+    "luteal": 10
+  },
+  "intervensi": {
+    "Bronkitis": {
+      "AMAN": "",
+      "WASPADA": "Pantau napas. Hindari aktivitas berat hari ini.",
+      "PERHATIAN": "Duduk tegak. Latihan pursed-lip breathing. Siapkan inhaler/obat.",
+      "BAHAYA": "Istirahat total. Jika sesak memberat atau SpO2 <92% berulang, segera hubungi dokter/IGD."
+    },
+    "Anxiety": {
+      "AMAN": "",
+      "WASPADA": "Tarik napas 4-7-8 selama 3 menit. Minum air hangat.",
+      "PERHATIAN": "Grounding 5-4-3-2-1. Jauhkan diri dari pemicu. Minum air.",
+      "BAHAYA": "Duduk, minum air hangat, latihan pernapasan dalam. Hubungi support jika perlu."
+    },
+    "Alergi Dingin": {
+      "AMAN": "",
+      "WASPADA": "Pakai jaket sebelum keluar. Suhu saat ini {suhu}°C.",
+      "PERHATIAN": "Pakai lapisan hangat. Hindari paparan angin/AC langsung.",
+      "BAHAYA": "Tetap di dalam ruangan. Pakai pakaian hangat berlapis. Hindari kontak dengan benda dingin."
+    }
+  },
+  "deduplikasi": {
+    "kirim_ulang_setelah_menit": 60,
+    "kirim_ulang_jika_level_berubah": true,
+    "jangan_kirim_jika_level_AMAN": true
+  },
+  "sumber_data": {
+    "huawei_stress_scale": "0-100",
+    "kaggle_stress_scale": "0-10",
+    "suhu_sumber": "BMKG API"
+  },
+  "catatan": "Threshold klinis berdasarkan literatur. Wajib divalidasi dokter sebelum dipakai untuk keputusan medis."
+}
