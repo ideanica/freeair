@@ -283,7 +283,7 @@ class _StatsScreenState extends State<StatsScreen> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 24, bottom: 12),
+                  padding: const EdgeInsets.only(top: 24, bottom: 14),
                   child: Row(
                     children: [
                       Expanded(
@@ -294,19 +294,40 @@ class _StatsScreenState extends State<StatsScreen> {
                                 kamus.t('statistik.ringkasan_minggu'),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: AppTeks.judulKartu(tones).copyWith(fontSize: 17),
+                                style: AppTeks.judulKartu(tones).copyWith(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.35,
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 7),
                             Container(
-                              width: 7,
-                              height: 7,
-                              decoration: BoxDecoration(
-                                color: tones.aksen,
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF1EB6F0),
                                 shape: BoxShape.circle,
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: tones.card.withValues(alpha: 0.72),
+                          borderRadius: BorderRadius.circular(99),
+                          border: Border.all(color: tones.line.withValues(alpha: 0.55)),
+                        ),
+                        child: Text(
+                          kamus.t('statistik.tujuh_hari').toUpperCase(),
+                          style: AppTeks.labelSeksi(tones).copyWith(
+                            fontSize: 9.5,
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w800,
+                            color: tones.inkSoft,
+                          ),
                         ),
                       ),
                     ],
@@ -315,6 +336,15 @@ class _StatsScreenState extends State<StatsScreen> {
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final lebar = (constraints.maxWidth - 14) / 2;
+                    final rataWarna = cekMinggu.isEmpty
+                        ? tones.inkSoft
+                        : tones.level(
+                            rataMinggu <= 25
+                                ? AlertLevels.aman
+                                : (rataMinggu <= 50
+                                    ? AlertLevels.waspada
+                                    : AlertLevels.perhatian),
+                          );
                     return Wrap(
                       spacing: 14,
                       runSpacing: 14,
@@ -323,21 +353,23 @@ class _StatsScreenState extends State<StatsScreen> {
                           width: lebar,
                           child: _MetricCard(
                             label: kamus.t('statistik.rata'),
-                            value: '$rataMinggu',
-                            unit: '/100',
-                            status: rataMinggu <= 25
-                                ? kamus.t('statistik.status_aman')
-                                : (rataMinggu <= 50
-                                    ? kamus.t('statistik.status_waspada')
-                                    : kamus.t('statistik.status_perhatian')),
-                            color: tones.level(
-                              rataMinggu <= 25
-                                  ? AlertLevels.aman
-                                  : (rataMinggu <= 50
-                                      ? AlertLevels.waspada
-                                      : AlertLevels.perhatian),
+                            value: cekMinggu.isEmpty ? '—' : '$rataMinggu',
+                            unit: cekMinggu.isEmpty ? '' : '/100',
+                            badge: cekMinggu.isEmpty
+                                ? kamus.t('statistik.tidak_ada')
+                                : (rataMinggu <= 25
+                                    ? kamus.t('statistik.status_aman')
+                                    : (rataMinggu <= 50
+                                        ? kamus.t('statistik.status_waspada')
+                                        : kamus.t('statistik.status_perhatian'))),
+                            color: rataWarna,
+                            visual: _MiniTrend(
+                              values: minggu
+                                  .where((d) => d.jumlah > 0)
+                                  .map((d) => d.skor.toDouble())
+                                  .toList(),
+                              color: tones.aksenDeep,
                             ),
-                            visual: _MiniTrend(values: minggu.map((d) => d.skor.toDouble()).toList(), color: tones.aksenDeep),
                             footer: kamus.t('statistik.rata_minggu_footer'),
                           ),
                         ),
@@ -347,9 +379,9 @@ class _StatsScreenState extends State<StatsScreen> {
                             label: kamus.t('statistik.total_cek'),
                             value: '${cekMinggu.length}',
                             unit: kamus.t('statistik.cek_unit'),
-                            status: kamus.t('statistik.minggu_ini'),
+                            badge: kamus.t('statistik.minggu_ini'),
                             color: tones.aman,
-                            visual: _ProgressTrack(progress: (cekMinggu.length / (cekMinggu.length < 7 ? 7 : cekMinggu.length)).clamp(0.0, 1.0), color: tones.aman),
+                            visual: _WeekBars(days: minggu, color: tones.aman),
                             footer: kamus.t('statistik.total_cek_footer', {'n': '$hariMinggu'}),
                           ),
                         ),
@@ -359,9 +391,13 @@ class _StatsScreenState extends State<StatsScreen> {
                             label: kamus.t('statistik.hari'),
                             value: '$hariMinggu',
                             unit: '/7',
-                            status: kamus.t('statistik.hari_aktif'),
-                            color: tones.aksen,
-                            visual: _WeekDots(days: minggu, color: tones.aksen),
+                            badge: kamus.t('statistik.hari_aktif'),
+                            color: tones.aksenDeep,
+                            visual: _RadialMetric(
+                              progress: hariMinggu / 7,
+                              color: tones.aksen,
+                              icon: Icons.eco_outlined,
+                            ),
                             footer: kamus.t('statistik.hari_footer'),
                           ),
                         ),
@@ -371,15 +407,14 @@ class _StatsScreenState extends State<StatsScreen> {
                             label: kamus.t('statistik.alert_7'),
                             value: '$perluPerhatian',
                             unit: kamus.t('statistik.cek_unit'),
-                            status: perluPerhatian == 0
+                            badge: perluPerhatian == 0
                                 ? kamus.t('statistik.status_aman')
                                 : kamus.t('statistik.status_perhatian'),
                             color: perluPerhatian == 0 ? tones.aman : tones.waspada,
-                            visual: _WeekDots(
+                            visual: _AlertWeekStrip(
                               days: minggu,
-                              color: tones.waspada,
-                              alertOnly: true,
                               rows: cekMinggu,
+                              color: tones.waspada,
                             ),
                             footer: kamus.t('statistik.alert_footer'),
                           ),
@@ -537,7 +572,7 @@ class _MetricCard extends StatelessWidget {
     required this.label,
     required this.value,
     required this.unit,
-    required this.status,
+    required this.badge,
     required this.color,
     required this.visual,
     required this.footer,
@@ -546,7 +581,7 @@ class _MetricCard extends StatelessWidget {
   final String label;
   final String value;
   final String unit;
-  final String status;
+  final String badge;
   final Color color;
   final Widget visual;
   final String footer;
@@ -555,75 +590,124 @@ class _MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
     return Container(
-      constraints: const BoxConstraints(minHeight: 206),
+      constraints: const BoxConstraints(minHeight: 226),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       decoration: BoxDecoration(
-        color: tones.card.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: tones.line.withValues(alpha: 0.45)),
-        boxShadow: tones.softShadow(),
+        color: tones.card.withValues(alpha: 0.90),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: tones.line.withValues(alpha: 0.28)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0877AE).withValues(alpha: 0.075),
+            blurRadius: 24,
+            spreadRadius: -4,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  label.toUpperCase(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTeks.labelSeksi(tones).copyWith(
-                    fontSize: 11.5,
-                    color: tones.inkSoft,
-                    letterSpacing: 0.35,
-                    fontWeight: FontWeight.w700,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      label.toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTeks.labelSeksi(tones).copyWith(
+                        fontSize: 11.5,
+                        letterSpacing: 0.65,
+                        color: tones.inkSoft,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 5),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.13),
+                        borderRadius: BorderRadius.circular(99),
+                      ),
+                      child: Text(
+                        badge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 5),
-              Flexible(child: JbStatusPill(label: status, color: color, compact: true)),
+              const SizedBox(height: 9),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 36,
+                          height: 1.08,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -1.2,
+                          color: tones.ink,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (unit.isNotEmpty) ...[
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        unit,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 11,
+                          color: tones.inkSoft,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ],
           ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                child: Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontSize: 31,
-                    height: 1.05,
-                    fontWeight: FontWeight.w800,
-                    color: tones.ink,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(
-                  unit,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 11, color: tones.inkSoft, fontWeight: FontWeight.w500),
+              SizedBox(height: 38, child: visual),
+              const SizedBox(height: 8),
+              Text(
+                footer,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTeks.isiSoft(tones).copyWith(
+                  fontSize: 10.5,
+                  height: 1.35,
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(height: 36, child: visual),
-          const SizedBox(height: 9),
-          Text(
-            footer,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTeks.isiSoft(tones).copyWith(fontSize: 10.5),
           ),
         ],
       ),
@@ -676,65 +760,162 @@ class _TrendPainter extends CustomPainter {
       oldDelegate.values != values || oldDelegate.color != color;
 }
 
-class _ProgressTrack extends StatelessWidget {
-  const _ProgressTrack({required this.progress, required this.color});
-  final double progress;
+class _WeekBars extends StatelessWidget {
+  const _WeekBars({required this.days, required this.color});
+  final List<_HariStat> days;
   final Color color;
 
   @override
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(99),
-      child: LinearProgressIndicator(
-        value: progress.clamp(0.0, 1.0),
-        minHeight: 7,
-        backgroundColor: tones.line.withValues(alpha: 0.65),
-        color: color,
-      ),
+    final maxCount = days.fold<int>(1, (m, d) => d.jumlah > m ? d.jumlah : m);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        for (final day in days)
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  height: day.jumlah == 0 ? 5 : 8 + (day.jumlah / maxCount) * 23,
+                  decoration: BoxDecoration(
+                    color: day.jumlah == 0
+                        ? tones.line.withValues(alpha: 0.75)
+                        : color.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
 
-class _WeekDots extends StatelessWidget {
-  const _WeekDots({
-    required this.days,
+class _RadialMetric extends StatelessWidget {
+  const _RadialMetric({
+    required this.progress,
     required this.color,
-    this.alertOnly = false,
-    this.rows = const [],
+    required this.icon,
   });
-  final List<_HariStat> days;
+  final double progress;
   final Color color;
-  final bool alertOnly;
-  final List<AlertRecord> rows;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
-    final today = DateTime.now();
-    final start = DateTime(today.year, today.month, today.day)
-        .subtract(const Duration(days: 6));
+    return Row(
+      children: [
+        SizedBox(
+          width: 42,
+          height: 42,
+          child: CustomPaint(
+            painter: _RingPainter(progress: progress, color: color, track: tones.line),
+            child: Icon(icon, size: 17, color: color),
+          ),
+        ),
+        const Spacer(),
+        Text(
+          '${(progress * 100).round()}%',
+          style: AppTeks.labelSeksi(tones).copyWith(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: tones.inkSoft,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  const _RingPainter({
+    required this.progress,
+    required this.color,
+    required this.track,
+  });
+  final double progress;
+  final Color color;
+  final Color track;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final p = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(rect.deflate(3), 0, 2 * 3.141592653589793, false, p..color = track.withValues(alpha: 0.65));
+    canvas.drawArc(
+      rect.deflate(3),
+      -3.141592653589793 / 2,
+      2 * 3.141592653589793 * progress.clamp(0.0, 1.0),
+      false,
+      p..color = color,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _RingPainter oldDelegate) =>
+      oldDelegate.progress != progress || oldDelegate.color != color || oldDelegate.track != track;
+}
+
+class _AlertWeekStrip extends StatelessWidget {
+  const _AlertWeekStrip({
+    required this.days,
+    required this.rows,
+    required this.color,
+  });
+  final List<_HariStat> days;
+  final List<AlertRecord> rows;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final tones = AppTones.of(context);
+    final labels = L10n.of(context).kode == 'en'
+        ? const ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+        : const ['S', 'S', 'R', 'K', 'J', 'S', 'M'];
+    final now = DateTime.now();
+    final first = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        for (var i = 0; i < days.length; i++)
-          Container(
-            width: 15,
-            height: 15,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: alertOnly
-                  ? (rows.any((r) {
-                      final date = start.add(Duration(days: i));
-                      return r.timestamp.year == date.year &&
-                          r.timestamp.month == date.month &&
-                          r.timestamp.day == date.day &&
-                          AlertLevels.levelButuhAlert(r.level);
-                    }) ? color : tones.line)
-                  : (days[i].jumlah > 0
-                      ? color.withValues(alpha: 0.8)
-                      : tones.line),
-            ),
+        for (var i = 0; i < 7; i++)
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                labels[i],
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                  color: tones.inkSoft,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Container(
+                width: 9,
+                height: 9,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: rows.any((r) {
+                    final date = first.add(Duration(days: i));
+                    return r.timestamp.year == date.year &&
+                        r.timestamp.month == date.month &&
+                        r.timestamp.day == date.day &&
+                        AlertLevels.levelButuhAlert(r.level);
+                  })
+                      ? color
+                      : tones.aksenSoft.withValues(alpha: 0.65),
+                ),
+              ),
+            ],
           ),
       ],
     );
