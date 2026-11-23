@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/l10n.dart';
 import '../models/alert_record.dart';
 import '../models/condition_result.dart';
+import '../models/health_sample.dart';
 import '../services/database_helpers.dart';
 import '../widgets/jb.dart';
 import 'level_style.dart';
@@ -26,12 +27,23 @@ class StatsScreen extends StatefulWidget {
 }
 
 class _StatsScreenState extends State<StatsScreen> {
-  late Future<List<AlertRecord>> _future;
+  late Future<_StatsData> _future;
+
+  Future<_StatsData> _loadStats() async {
+    final results = await Future.wait([
+      widget.store.getRecentAlerts(limit: 10000),
+      widget.store.getSamples(days: 7),
+    ]);
+    return _StatsData(
+      alerts: results[0] as List<AlertRecord>,
+      samples: results[1] as List<HealthSample>,
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    _future = widget.store.getRecentAlerts(limit: 200);
+    _future = _loadStats();
     widget.pengamat?.addListener(_uatUlang);
   }
 
@@ -43,7 +55,7 @@ class _StatsScreenState extends State<StatsScreen> {
 
   void _uatUlang() {
     setState(() {
-      _future = widget.store.getRecentAlerts(limit: 200);
+      _future = _loadStats();
     });
   }
 
@@ -93,7 +105,7 @@ class _StatsScreenState extends State<StatsScreen> {
     return Scaffold(
       body: SafeArea(
         bottom: false,
-        child: FutureBuilder<List<AlertRecord>>(
+        child: FutureBuilder<_StatsData>(
           future: _future,
           builder: (context, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
@@ -130,8 +142,10 @@ class _StatsScreenState extends State<StatsScreen> {
               );
             }
 
-            final rows = snapshot.data ?? const <AlertRecord>[];
-            if (rows.isEmpty) {
+            final data = snapshot.data ?? _StatsData.empty;
+            final rows = data.alerts;
+            final samples = data.samples;
+            if (rows.isEmpty && samples.isEmpty) {
               return ListView(
                 padding: EdgeInsets.fromLTRB(
                   20,
@@ -157,16 +171,17 @@ class _StatsScreenState extends State<StatsScreen> {
               sekarang.month,
               sekarang.day,
             ).subtract(const Duration(days: 6));
-            final perluPerhatian = rows
-                .where(
-                  (r) =>
-                      !r.timestamp.isBefore(awalMinggu) &&
-                      AlertLevels.levelButuhAlert(r.level),
-                )
+            final siklusMinggu = samples
+                .where((sample) => !sample.at.isBefore(awalMinggu))
+                .toList();
+            final perluPerhatian = siklusMinggu
+                .where((sample) => AlertLevels.levelButuhAlert(
+                      sample.levelTertinggi ?? AlertLevels.aman,
+                    ))
                 .length;
             final cekMinggu = rows.where((r) => !r.timestamp.isBefore(awalMinggu)).toList();
-            final hariMinggu = cekMinggu
-                .map((r) => DateTime(r.timestamp.year, r.timestamp.month, r.timestamp.day))
+            final hariMinggu = siklusMinggu
+                .map((sample) => DateTime(sample.at.year, sample.at.month, sample.at.day))
                 .toSet()
                 .length;
             final rataMinggu = cekMinggu.isEmpty
@@ -377,8 +392,8 @@ class _StatsScreenState extends State<StatsScreen> {
                           width: lebar,
                           child: _MetricCard(
                             label: kamus.t('statistik.total_cek'),
-                            value: '${cekMinggu.length}',
-                            unit: kamus.t('statistik.cek_unit'),
+                            value: '${siklusMinggu.length}',
+                            unit: kamus.t('statistik.siklus_unit'),
                             badge: kamus.t('statistik.minggu_ini'),
                             color: tones.aman,
                             visual: _WeekBars(days: minggu, color: tones.aman),
@@ -413,7 +428,7 @@ class _StatsScreenState extends State<StatsScreen> {
                             color: perluPerhatian == 0 ? tones.aman : tones.waspada,
                             visual: _AlertWeekStrip(
                               days: minggu,
-                              rows: cekMinggu,
+                              samples: siklusMinggu,
                               color: tones.waspada,
                             ),
                             footer: kamus.t('statistik.alert_footer'),
@@ -551,6 +566,18 @@ class _StatsScreenState extends State<StatsScreen> {
       );
     });
   }
+}
+
+class _StatsData {
+  const _StatsData({required this.alerts, required this.samples});
+
+  static const empty = _StatsData(
+    alerts: <AlertRecord>[],
+    samples: <HealthSample>[],
+  );
+
+  final List<AlertRecord> alerts;
+  final List<HealthSample> samples;
 }
 
 class _HariStat {
@@ -867,11 +894,11 @@ class _RingPainter extends CustomPainter {
 class _AlertWeekStrip extends StatelessWidget {
   const _AlertWeekStrip({
     required this.days,
-    required this.rows,
+    required this.samples,
     required this.color,
   });
   final List<_HariStat> days;
-  final List<AlertRecord> rows;
+  final List<HealthSample> samples;
   final Color color;
 
   @override
@@ -905,12 +932,14 @@ class _AlertWeekStrip extends StatelessWidget {
                 height: 9,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: rows.any((r) {
+                  color: samples.any((sample) {
                     final date = first.add(Duration(days: i));
-                    return r.timestamp.year == date.year &&
-                        r.timestamp.month == date.month &&
-                        r.timestamp.day == date.day &&
-                        AlertLevels.levelButuhAlert(r.level);
+                    return sample.at.year == date.year &&
+                        sample.at.month == date.month &&
+                        sample.at.day == date.day &&
+                        AlertLevels.levelButuhAlert(
+                          sample.levelTertinggi ?? AlertLevels.aman,
+                        );
                   })
                       ? color
                       : tones.aksenSoft.withValues(alpha: 0.65),
