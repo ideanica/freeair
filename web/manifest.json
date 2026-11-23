@@ -1,6 +1,6 @@
 {
-    "name": "health_alert",
-    "short_name": "health_alert",
+    "name": "FreeAir",
+    "short_name": "FreeAir",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
