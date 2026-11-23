@@ -126,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(
                   20,
-                  16,
+                  32,
                   20,
                   AppLayout.bawahKonten(context),
                 ),
@@ -147,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         hasil: alert.reduce((a, b) => a.skor >= b.skor ? a : b),
                         kamus: kamus,
                         tones: tones,
-                        onTap: () => Navigator.pushNamed(context, '/history'),
+                        onTap: () => Navigator.pushNamed(context, '/notifications'),
                       ),
                     ],
                     const SizedBox(height: 16),
