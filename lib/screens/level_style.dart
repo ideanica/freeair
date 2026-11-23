@@ -797,8 +797,8 @@ class LencanaJumlah extends StatelessWidget {
             right: -5,
             child: Container(
               // Badge lebih kecil: min-width 16, padding horizontal 4
-              constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              constraints: const BoxConstraints(minWidth: 14, minHeight: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 0),
               decoration: BoxDecoration(
                 color: tones.sinyal,
                 borderRadius: BorderRadius.circular(8),
@@ -806,7 +806,7 @@ class LencanaJumlah extends StatelessWidget {
               child: Text(
                 '$n',
                 textAlign: TextAlign.center,
-                style: AppTeks.badge(tones).copyWith(fontSize: 10),
+                style: AppTeks.badge(tones).copyWith(fontSize: 9),
               ),
             ),
           ),
@@ -1091,8 +1091,8 @@ class PilTab extends StatelessWidget {
     required this.teks,
     required this.aktif,
     required this.onTap,
-    this.ukuranTeks = 16,
-    this.padding = const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+    this.ukuranTeks = 13,
+    this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
     super.key,
   });
 
@@ -1220,7 +1220,7 @@ class InfoChip extends StatelessWidget {
     final color = warna ?? Theme.of(context).colorScheme.onSurfaceVariant;
     return Container(
       // Padding lebih kecil agar chip proporsional di mobile
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.13),
         borderRadius: BorderRadius.circular(20),
@@ -1229,7 +1229,7 @@ class InfoChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (ikon != null) ...[
-            Icon(ikon, size: 11, color: color),
+            Icon(ikon, size: 10, color: color),
             const SizedBox(width: 4),
           ],
           Flexible(
@@ -1242,7 +1242,7 @@ class InfoChip extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   color: color,
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: berat,
                 ),
               ),
@@ -1276,7 +1276,7 @@ class LevelChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (showIcon) ...[
-            Icon(LevelStyle.iconOf(level), size: 11, color: color),
+            Icon(LevelStyle.iconOf(level), size: 10, color: color),
             const SizedBox(width: 4),
           ],
           Flexible(
@@ -1290,7 +1290,7 @@ class LevelChip extends StatelessWidget {
                   fontFamily: 'Plus Jakarta Sans',
                   color: color,
                   fontWeight: FontWeight.bold,
-                  fontSize: 10.5,
+                  fontSize: 9.5,
                 ),
               ),
             ),
@@ -1395,7 +1395,7 @@ class KalibrasiChip extends StatelessWidget {
                 maxLines: 1,
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: warna,
                 ),
