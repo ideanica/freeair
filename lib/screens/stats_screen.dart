@@ -194,15 +194,7 @@ class _StatsScreenState extends State<StatsScreen> {
               ),
               children: [
                 kepala(),
-                JbSectionTitle(
-                  title: kamus.t('statistik.tren'),
-                  padding: const EdgeInsets.only(top: 4, bottom: 6),
-                ),
-                Text(
-                  kamus.t('statistik.tren_sub'),
-                  style: AppTeks.isiSoft(tones).copyWith(fontSize: 12.5),
-                ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 4),
                 JbCard(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                   child: Column(
@@ -239,7 +231,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       ),
                       const SizedBox(height: 18),
                       SizedBox(
-                        height: 184,
+                        height: 180,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
@@ -658,7 +650,7 @@ class _BatangHari extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 7),
+          const SizedBox(height: 3),
           Text(
             hari.label,
             maxLines: 1,
