@@ -696,19 +696,13 @@ class _ProgressTrack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(99),
-        child: Stack(
-          children: [
-            Container(height: 7, color: tones.line.withValues(alpha: 0.65)),
-            FractionallySizedBox(
-              widthFactor: progress.clamp(0.0, 1.0),
-              child: Container(height: 7, color: color),
-            ),
-          ],
-        ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(99),
+      child: LinearProgressIndicator(
+        value: progress.clamp(0.0, 1.0),
+        minHeight: 7,
+        backgroundColor: tones.line.withValues(alpha: 0.65),
+        color: color,
       ),
     );
   }
@@ -729,24 +723,29 @@ class _WeekDots extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
+    final today = DateTime.now();
+    final start = DateTime(today.year, today.month, today.day)
+        .subtract(const Duration(days: 6));
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        for (final day in days)
+        for (var i = 0; i < days.length; i++)
           Container(
             width: 15,
             height: 15,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: alertOnly
-                  ? (rows.any((r) =>
-                      r.timestamp.year == DateTime.now().year &&
-                      r.timestamp.month == DateTime.now().month &&
-                      r.timestamp.day == DateTime.now().day &&
-                      AlertLevels.levelButuhAlert(r.level))
-                      ? color
-                      : tones.line)
-                  : (day.jumlah > 0 ? color.withValues(alpha: 0.8) : tones.line),
+                  ? (rows.any((r) {
+                      final date = start.add(Duration(days: i));
+                      return r.timestamp.year == date.year &&
+                          r.timestamp.month == date.month &&
+                          r.timestamp.day == date.day &&
+                          AlertLevels.levelButuhAlert(r.level);
+                    }) ? color : tones.line)
+                  : (days[i].jumlah > 0
+                      ? color.withValues(alpha: 0.8)
+                      : tones.line),
             ),
           ),
       ],
