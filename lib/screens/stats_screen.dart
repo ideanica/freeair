@@ -151,16 +151,6 @@ class _StatsScreenState extends State<StatsScreen> {
             }
 
             final total = rows.length;
-            final hari = rows
-                .map(
-                  (r) => DateTime(
-                    r.timestamp.year,
-                    r.timestamp.month,
-                    r.timestamp.day,
-                  ),
-                )
-                .toSet()
-                .length;
             final sekarang = DateTime.now();
             final awalMinggu = DateTime(
               sekarang.year,
@@ -174,8 +164,6 @@ class _StatsScreenState extends State<StatsScreen> {
                       AlertLevels.levelButuhAlert(r.level),
                 )
                 .length;
-            final rata = (rows.fold<int>(0, (a, r) => a + r.skor) / total)
-                .round();
             final cekMinggu = rows.where((r) => !r.timestamp.isBefore(awalMinggu)).toList();
             final hariMinggu = cekMinggu
                 .map((r) => DateTime(r.timestamp.year, r.timestamp.month, r.timestamp.day))
