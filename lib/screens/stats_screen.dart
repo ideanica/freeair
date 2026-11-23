@@ -204,9 +204,40 @@ class _StatsScreenState extends State<StatsScreen> {
                 ),
                 const SizedBox(height: 10),
                 JbCard(
-                  padding: const EdgeInsets.fromLTRB(14, 18, 14, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                   child: Column(
                     children: [
+                      Row(
+                        children: [
+                          Icon(Icons.air_rounded, size: 20, color: tones.aksenDeep),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              kamus.t('statistik.tren'),
+                              style: AppTeks.judulBaris(tones).copyWith(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              color: tones.aksenSoft.withValues(alpha: 0.24),
+                              borderRadius: BorderRadius.circular(99),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _RentangChart(label: 'D', aktif: false, tones: tones),
+                                _RentangChart(label: 'W', aktif: true, tones: tones),
+                                _RentangChart(label: 'Y', aktif: false, tones: tones),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
                       SizedBox(
                         height: 184,
                         child: Row(
@@ -494,6 +525,40 @@ class _StatTile extends StatelessWidget {
             style: AppTeks.labelSeksi(tones).copyWith(fontSize: 11.5),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _RentangChart extends StatelessWidget {
+  const _RentangChart({
+    required this.label,
+    required this.aktif,
+    required this.tones,
+  });
+
+  final String label;
+  final bool aktif;
+  final AppTones tones;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 30, minHeight: 28),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: aktif ? tones.aksenSoft : Colors.transparent,
+        borderRadius: BorderRadius.circular(99),
+        boxShadow: aktif ? tones.softShadow() : null,
+      ),
+      child: Text(
+        label,
+        style: AppTeks.labelSeksi(tones).copyWith(
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          color: aktif ? tones.aksenDeep : tones.inkSoft,
+        ),
       ),
     );
   }
