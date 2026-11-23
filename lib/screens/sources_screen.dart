@@ -93,7 +93,7 @@ class _SourcesScreenState extends State<SourcesScreen> {
       body: ListView(
         padding: EdgeInsets.fromLTRB(
           20,
-          MediaQuery.paddingOf(context).top + 8,
+          MediaQuery.paddingOf(context).top + 24,
           20,
           AppLayout.bawahKonten(context),
         ),
