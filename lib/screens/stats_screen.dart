@@ -499,52 +499,6 @@ class _StatTile extends StatelessWidget {
   }
 }
 
-class _RataKartu extends StatelessWidget {
-  const _RataKartu({
-    required this.rata,
-    required this.total,
-    required this.kamus,
-    required this.tones,
-  });
-
-  final int rata;
-  final int total;
-  final L10n kamus;
-  final AppTones tones;
-
-  @override
-  Widget build(BuildContext context) {
-    final level = rata <= 25
-        ? AlertLevels.aman
-        : (rata <= 50 ? AlertLevels.waspada : AlertLevels.perhatian);
-    return JbCard(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        children: [
-          ScoreGauge(skor: rata, level: level, size: 52),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  kamus.t('statistik.rata'),
-                  style: AppTeks.judulBaris(tones).copyWith(fontSize: 15),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  kamus.t('statistik.cek_n', {'n': '$total'}),
-                  style: AppTeks.isiSoft(tones).copyWith(fontSize: 12.5),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _BatangHari extends StatelessWidget {
   const _BatangHari({
     required this.hari,
