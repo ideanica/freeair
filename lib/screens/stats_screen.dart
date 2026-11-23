@@ -109,7 +109,7 @@ class _StatsScreenState extends State<StatsScreen> {
               return ListView(
                 padding: EdgeInsets.fromLTRB(
                   20,
-                  8,
+                  24,
                   20,
                   AppLayout.bawahKonten(context),
                 ),
@@ -124,7 +124,7 @@ class _StatsScreenState extends State<StatsScreen> {
               return ListView(
                 padding: EdgeInsets.fromLTRB(
                   20,
-                  8,
+                  24,
                   20,
                   AppLayout.bawahKonten(context),
                 ),
@@ -156,7 +156,7 @@ class _StatsScreenState extends State<StatsScreen> {
               return ListView(
                 padding: EdgeInsets.fromLTRB(
                   20,
-                  8,
+                  24,
                   20,
                   AppLayout.bawahKonten(context),
                 ),
