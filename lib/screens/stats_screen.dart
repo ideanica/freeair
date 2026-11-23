@@ -176,6 +176,14 @@ class _StatsScreenState extends State<StatsScreen> {
                 .length;
             final rata = (rows.fold<int>(0, (a, r) => a + r.skor) / total)
                 .round();
+            final cekMinggu = rows.where((r) => !r.timestamp.isBefore(awalMinggu)).toList();
+            final hariMinggu = cekMinggu
+                .map((r) => DateTime(r.timestamp.year, r.timestamp.month, r.timestamp.day))
+                .toSet()
+                .length;
+            final rataMinggu = cekMinggu.isEmpty
+                ? 0
+                : (cekMinggu.fold<int>(0, (a, r) => a + r.skor) / cekMinggu.length).round();
             final minggu = _mingguIni(rows, kamus);
             final adaMinggu = minggu.where((d) => d.jumlah > 0).toList();
             final terbaik = adaMinggu.isEmpty
@@ -286,49 +294,111 @@ class _StatsScreenState extends State<StatsScreen> {
                     ],
                   ),
                 ),
-                JbSectionTitle(
-                  title: kamus.t('statistik.sub'),
-                  padding: const EdgeInsets.only(top: 22, bottom: 12),
-                ),
-                GridView.count(
-                  crossAxisCount: 2,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.72,
-                  children: [
-                    _StatTile(
-                      ikon: Icons.fact_check_outlined,
-                      label: kamus.t('statistik.total_cek'),
-                      nilai: '$total',
-                      warna: tones.aksenDeep,
-                    ),
-                    _StatTile(
-                      ikon: Icons.calendar_today_rounded,
-                      label: kamus.t('statistik.hari'),
-                      nilai: '$hari',
-                      warna: tones.mauve,
-                    ),
-                    _StatTile(
-                      ikon: Icons.notifications_active_outlined,
-                      label: kamus.t('statistik.alert_7'),
-                      nilai: '$perluPerhatian',
-                      warna: perluPerhatian == 0 ? tones.aman : tones.waspada,
-                    ),
-                    _StatTile(
-                      ikon: Icons.speed_rounded,
-                      label: kamus.t('statistik.rata'),
-                      nilai: '$rata',
-                      warna: tones.level(
-                        rata <= 25
-                            ? AlertLevels.aman
-                            : (rata <= 50
-                                ? AlertLevels.waspada
-                                : AlertLevels.perhatian),
+                Padding(
+                  padding: const EdgeInsets.only(top: 24, bottom: 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                kamus.t('statistik.ringkasan_minggu'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTeks.judulKartu(tones).copyWith(fontSize: 17),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              width: 7,
+                              height: 7,
+                              decoration: BoxDecoration(
+                                color: tones.aksen,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final lebar = (constraints.maxWidth - 14) / 2;
+                    return Wrap(
+                      spacing: 14,
+                      runSpacing: 14,
+                      children: [
+                        SizedBox(
+                          width: lebar,
+                          child: _MetricCard(
+                            label: kamus.t('statistik.rata'),
+                            value: '$rataMinggu',
+                            unit: '/100',
+                            status: rataMinggu <= 25
+                                ? kamus.t('statistik.status_aman')
+                                : (rataMinggu <= 50
+                                    ? kamus.t('statistik.status_waspada')
+                                    : kamus.t('statistik.status_perhatian')),
+                            color: tones.level(
+                              rataMinggu <= 25
+                                  ? AlertLevels.aman
+                                  : (rataMinggu <= 50
+                                      ? AlertLevels.waspada
+                                      : AlertLevels.perhatian),
+                            ),
+                            visual: _MiniTrend(values: minggu.map((d) => d.skor.toDouble()).toList(), color: tones.aksenDeep),
+                            footer: kamus.t('statistik.rata_minggu_footer'),
+                          ),
+                        ),
+                        SizedBox(
+                          width: lebar,
+                          child: _MetricCard(
+                            label: kamus.t('statistik.total_cek'),
+                            value: '${cekMinggu.length}',
+                            unit: kamus.t('statistik.cek_unit'),
+                            status: kamus.t('statistik.minggu_ini'),
+                            color: tones.aman,
+                            visual: _ProgressTrack(progress: (cekMinggu.length / (cekMinggu.length < 7 ? 7 : cekMinggu.length)).clamp(0.0, 1.0), color: tones.aman),
+                            footer: kamus.t('statistik.total_cek_footer', {'n': '$hariMinggu'}),
+                          ),
+                        ),
+                        SizedBox(
+                          width: lebar,
+                          child: _MetricCard(
+                            label: kamus.t('statistik.hari'),
+                            value: '$hariMinggu',
+                            unit: '/7',
+                            status: kamus.t('statistik.hari_aktif'),
+                            color: tones.aksen,
+                            visual: _WeekDots(days: minggu, color: tones.aksen),
+                            footer: kamus.t('statistik.hari_footer'),
+                          ),
+                        ),
+                        SizedBox(
+                          width: lebar,
+                          child: _MetricCard(
+                            label: kamus.t('statistik.alert_7'),
+                            value: '$perluPerhatian',
+                            unit: kamus.t('statistik.cek_unit'),
+                            status: perluPerhatian == 0
+                                ? kamus.t('statistik.status_aman')
+                                : kamus.t('statistik.status_perhatian'),
+                            color: perluPerhatian == 0 ? tones.aman : tones.waspada,
+                            visual: _WeekDots(
+                              days: minggu,
+                              color: tones.waspada,
+                              alertOnly: true,
+                              rows: cekMinggu,
+                            ),
+                            footer: kamus.t('statistik.alert_footer'),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 JbSectionTitle(
                   title: kamus.t('statistik.distribusi'),
@@ -474,50 +544,212 @@ class _HariStat {
   final String level;
 }
 
-class _StatTile extends StatelessWidget {
-  const _StatTile({
-    required this.ikon,
+class _MetricCard extends StatelessWidget {
+  const _MetricCard({
     required this.label,
-    required this.nilai,
-    required this.warna,
+    required this.value,
+    required this.unit,
+    required this.status,
+    required this.color,
+    required this.visual,
+    required this.footer,
   });
 
-  final IconData ikon;
   final String label;
-  final String nilai;
-  final Color warna;
+  final String value;
+  final String unit;
+  final String status;
+  final Color color;
+  final Widget visual;
+  final String footer;
 
   @override
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
-    return JbCard(
-      padding: const EdgeInsets.all(14),
+    return Container(
+      constraints: const BoxConstraints(minHeight: 206),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+      decoration: BoxDecoration(
+        color: tones.card.withValues(alpha: 0.96),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: tones.line.withValues(alpha: 0.45)),
+        boxShadow: tones.softShadow(),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(ikon, size: 18, color: warna),
-          const SizedBox(height: 10),
-          Text(
-            nilai,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontFamily: 'Plus Jakarta Sans',
-              fontSize: 24,
-              height: 1.05,
-              fontWeight: FontWeight.w800,
-              color: tones.ink,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTeks.labelSeksi(tones).copyWith(
+                    fontSize: 11.5,
+                    color: tones.inkSoft,
+                    letterSpacing: 0.35,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 5),
+              Flexible(child: JbStatusPill(label: status, color: color, compact: true)),
+            ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Flexible(
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontSize: 31,
+                    height: 1.05,
+                    fontWeight: FontWeight.w800,
+                    color: tones.ink,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  unit,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11, color: tones.inkSoft, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(height: 36, child: visual),
+          const SizedBox(height: 9),
           Text(
-            label,
+            footer,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: AppTeks.labelSeksi(tones).copyWith(fontSize: 11.5),
+            style: AppTeks.isiSoft(tones).copyWith(fontSize: 10.5),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _MiniTrend extends StatelessWidget {
+  const _MiniTrend({required this.values, required this.color});
+  final List<double> values;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => CustomPaint(
+    painter: _TrendPainter(values: values, color: color),
+    child: const SizedBox.expand(),
+  );
+}
+
+class _TrendPainter extends CustomPainter {
+  const _TrendPainter({required this.values, required this.color});
+  final List<double> values;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (values.isEmpty) return;
+    final maxValue = values.fold<double>(1, (a, b) => b > a ? b : a);
+    final minValue = values.fold<double>(0, (a, b) => b < a ? b : a);
+    final range = (maxValue - minValue).abs();
+    final points = <Offset>[];
+    for (var i = 0; i < values.length; i++) {
+      final x = values.length == 1 ? size.width / 2 : i / (values.length - 1) * size.width;
+      final normalized = range == 0 ? 0.5 : (values[i] - minValue) / range;
+      points.add(Offset(x, size.height - 4 - normalized * (size.height - 10)));
+    }
+    final path = Path()..moveTo(points.first.dx, points.first.dy);
+    for (var i = 1; i < points.length; i++) {
+      final prev = points[i - 1];
+      final current = points[i];
+      final mid = (prev.dx + current.dx) / 2;
+      path.cubicTo(mid, prev.dy, mid, current.dy, current.dx, current.dy);
+    }
+    canvas.drawPath(path, Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = 2.5..strokeCap = StrokeCap.round);
+    canvas.drawCircle(points.last, 3.5, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(covariant _TrendPainter oldDelegate) =>
+      oldDelegate.values != values || oldDelegate.color != color;
+}
+
+class _ProgressTrack extends StatelessWidget {
+  const _ProgressTrack({required this.progress, required this.color});
+  final double progress;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final tones = AppTones.of(context);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(99),
+        child: Stack(
+          children: [
+            Container(height: 7, color: tones.line.withValues(alpha: 0.65)),
+            FractionallySizedBox(
+              widthFactor: progress.clamp(0.0, 1.0),
+              child: Container(height: 7, color: color),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WeekDots extends StatelessWidget {
+  const _WeekDots({
+    required this.days,
+    required this.color,
+    this.alertOnly = false,
+    this.rows = const [],
+  });
+  final List<_HariStat> days;
+  final Color color;
+  final bool alertOnly;
+  final List<AlertRecord> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final tones = AppTones.of(context);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        for (final day in days)
+          Container(
+            width: 15,
+            height: 15,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: alertOnly
+                  ? (rows.any((r) =>
+                      r.timestamp.year == DateTime.now().year &&
+                      r.timestamp.month == DateTime.now().month &&
+                      r.timestamp.day == DateTime.now().day &&
+                      AlertLevels.levelButuhAlert(r.level))
+                      ? color
+                      : tones.line)
+                  : (day.jumlah > 0 ? color.withValues(alpha: 0.8) : tones.line),
+            ),
+          ),
+      ],
     );
   }
 }
