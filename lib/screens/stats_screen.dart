@@ -140,7 +140,6 @@ class _StatsScreenState extends State<StatsScreen> {
             }
 
             final data = snapshot.data ?? _StatsData.empty;
-            final samples = data.samples;
             final sekarang = DateTime.now();
             final awalMinggu = DateTime(
               sekarang.year,
@@ -150,7 +149,10 @@ class _StatsScreenState extends State<StatsScreen> {
             final rows = data.alerts
                 .where((r) => !r.timestamp.isBefore(awalMinggu))
                 .toList();
-            if (rows.isEmpty && samples.isEmpty) {
+            final siklusMinggu = data.samples
+                .where((sample) => !sample.at.isBefore(awalMinggu))
+                .toList();
+            if (rows.isEmpty && siklusMinggu.isEmpty) {
               return ListView(
                 padding: EdgeInsets.fromLTRB(
                   20,
@@ -170,9 +172,6 @@ class _StatsScreenState extends State<StatsScreen> {
             }
 
             final total = rows.length;
-            final siklusMinggu = samples
-                .where((sample) => !sample.at.isBefore(awalMinggu))
-                .toList();
             final perluPerhatian = siklusMinggu
                 .where((sample) => AlertLevels.levelButuhAlert(
                       sample.levelTertinggi ?? AlertLevels.aman,
