@@ -107,7 +107,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 return Stack(
                   children: [
                     ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+                      padding: const EdgeInsets.fromLTRB(20, 32, 20, 20),
                       children: [kepala()],
                     ),
                     const Center(child: CircularProgressIndicator()),
