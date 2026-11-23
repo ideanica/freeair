@@ -30,14 +30,11 @@ class _StatsScreenState extends State<StatsScreen> {
   late Future<_StatsData> _future;
 
   Future<_StatsData> _loadStats() async {
-    final results = await Future.wait([
-      widget.store.getRecentAlerts(limit: 3000),
-      widget.store.getSamples(days: 8),
-    ]);
-    return _StatsData(
-      alerts: results[0] as List<AlertRecord>,
-      samples: results[1] as List<HealthSample>,
-    );
+    final alertsFuture = widget.store.getRecentAlerts(limit: 3000);
+    final samplesFuture = widget.store.getSamples(days: 8);
+    final alerts = await alertsFuture;
+    final samples = await samplesFuture;
+    return _StatsData(alerts: alerts, samples: samples);
   }
 
   @override
@@ -143,8 +140,16 @@ class _StatsScreenState extends State<StatsScreen> {
             }
 
             final data = snapshot.data ?? _StatsData.empty;
-            final rows = data.alerts;
             final samples = data.samples;
+            final sekarang = DateTime.now();
+            final awalMinggu = DateTime(
+              sekarang.year,
+              sekarang.month,
+              sekarang.day,
+            ).subtract(const Duration(days: 6));
+            final rows = data.alerts
+                .where((r) => !r.timestamp.isBefore(awalMinggu))
+                .toList();
             if (rows.isEmpty && samples.isEmpty) {
               return ListView(
                 padding: EdgeInsets.fromLTRB(
@@ -165,12 +170,6 @@ class _StatsScreenState extends State<StatsScreen> {
             }
 
             final total = rows.length;
-            final sekarang = DateTime.now();
-            final awalMinggu = DateTime(
-              sekarang.year,
-              sekarang.month,
-              sekarang.day,
-            ).subtract(const Duration(days: 6));
             final siklusMinggu = samples
                 .where((sample) => !sample.at.isBefore(awalMinggu))
                 .toList();
@@ -179,7 +178,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       sample.levelTertinggi ?? AlertLevels.aman,
                     ))
                 .length;
-            final cekMinggu = rows.where((r) => !r.timestamp.isBefore(awalMinggu)).toList();
+            final cekMinggu = rows;
             final hariMinggu = siklusMinggu
                 .map((sample) => DateTime(sample.at.year, sample.at.month, sample.at.day))
                 .toSet()
