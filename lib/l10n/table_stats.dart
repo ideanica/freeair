@@ -25,8 +25,8 @@ const Map<String, String> idStats = {
   'statistik.tren_sub': 'Tinggi batang = skor tertinggi hari itu.',
   'statistik.terbaik': 'Terbaik',
   'statistik.terburuk': 'Terburuk',
-  'statistik.distribusi': 'Distribusi level',
-  'statistik.per_kondisi': 'Per kondisi',
+  'statistik.distribusi': 'Distribusi level · 7 hari',
+  'statistik.per_kondisi': 'Per kondisi · 7 hari',
   'statistik.kosong_judul': 'Belum ada data statistik',
   'statistik.kosong_pesan':
       'Statistik muncul setelah beberapa siklus pemeriksaan selesai.',
@@ -68,8 +68,8 @@ const Map<String, String> enStats = {
   'statistik.tren_sub': "Bar height = the highest score that day.",
   'statistik.terbaik': 'Best',
   'statistik.terburuk': 'Worst',
-  'statistik.distribusi': 'Level distribution',
-  'statistik.per_kondisi': 'By condition',
+  'statistik.distribusi': 'Level distribution · 7 days',
+  'statistik.per_kondisi': 'By condition · 7 days',
   'statistik.kosong_judul': 'No statistics yet',
   'statistik.kosong_pesan':
       'Statistics appear after a few check cycles have finished.',
