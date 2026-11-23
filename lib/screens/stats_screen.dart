@@ -877,8 +877,9 @@ class _AlertWeekStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
-    final labels = L10n.of(context).kode == 'en'
-        ? const ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+    final english = L10n.of(context).kode == 'en';
+    final labels = english
+        ? const ['M', 'T', 'W', 'T', 'F', 'S', 'S']
         : const ['S', 'S', 'R', 'K', 'J', 'S', 'M'];
     final now = DateTime.now();
     final first = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
@@ -890,7 +891,7 @@ class _AlertWeekStrip extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(
-                labels[i],
+                labels[first.add(Duration(days: i)).weekday - 1],
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
                   fontSize: 9,
