@@ -281,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .push(MaterialPageRoute<void>(builder: (_) => const BreatheScreen()));
   }
 
-  /// Sapaan + avatar + lonceng. Tinggi tetap supaya tanggal tidak melompat
+  /// Sapaan + pintasan profil. Tinggi tetap supaya tanggal tidak melompat
   /// saat nama pengguna kosong.
   Widget _sapaan(L10n kamus, AppTones tones, String? nama, int jumlahAlert) {
     final jam = DateTime.now().hour;
@@ -319,10 +319,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(width: 8),
         JbIconButton(
-          icon: Icons.notifications_none_rounded,
-          badge: jumlahAlert,
-          tooltip: kamus.t('beranda.nav_alert'),
-          onTap: () => Navigator.pushNamed(context, '/history'),
+          icon: Icons.account_circle_rounded,
+          tooltip: kamus.t('nav.profil'),
+          onTap: () => Navigator.pushNamed(context, '/profile'),
         ),
       ],
     );
