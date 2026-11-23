@@ -96,14 +96,15 @@ void main() {
     expect(find.text('Language'), findsOneWidget);
     expect(find.text('Follow system'), findsOneWidget);
     expect(find.text('Home'), findsOneWidget);
-    expect(find.text('History'), findsOneWidget);
+    expect(find.text('Alerts'), findsOneWidget);
 
     await bukaTab(tester, 'Home');
     expect(find.text('No check yet'), findsOneWidget);
     expect(find.text('Belum ada pemeriksaan'), findsNothing);
 
-    await bukaTab(tester, 'Sources');
-    expect(find.text('Sources & references'), findsOneWidget);
+    await bukaTab(tester, 'Statistics');
+    expect(find.text('Statistics'), findsWidgets);
+    expect(find.text('No statistics yet'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -153,7 +154,7 @@ void main() {
     await pumpApp(tester);
     expect(tonesAktif(tester), AppTones.gelap);
 
-    for (final tab in ['Beranda', 'Riwayat', 'Sumber', 'Profil']) {
+    for (final tab in ['Beranda', 'Alerts', 'Statistik', 'Profil']) {
       await bukaTab(tester, tab);
       expect(tester.takeException(), isNull, reason: 'tab $tab error');
       expect(

@@ -7,8 +7,9 @@
 const Map<String, String> idCore = {
   'nav.beranda': 'Beranda',
   'nav.profil': 'Profil',
-  'nav.riwayat': 'Riwayat',
-  'nav.sumber': 'Sumber',
+  'nav.riwayat': 'Alerts',
+  'nav.napas': 'Napas',
+  'nav.statistik': 'Statistik',
 
   'level.aman': 'Semua sinyal masih di dalam batas normalmu',
   'level.waspada': 'Ada pemicu kecil — pantau 1-2 jam ke depan',
@@ -28,6 +29,7 @@ const Map<String, String> idCore = {
   'umum.jam': 'jam {waktu}',
   'umum.cek': '{jumlah} cek',
   'umum.tutup': 'Tutup',
+  'umum.kembali': 'Kembali',
   'umum.simpan': 'Simpan',
   'umum.belum_ada': 'belum ada',
   'umum.skor_naik': 'YANG MEMBUAT SKOR NAIK',
@@ -49,11 +51,11 @@ const Map<String, String> idCore = {
 
   'sumber.simulasi': 'Data simulasi',
 
-  'notif.nama_kanal': 'Health Alerts',
+  'notif.nama_kanal': 'FreeAir',
   'notif.deskripsi_kanal': 'Peringatan kesehatan personal',
   'notif.judul': '⚠️ {kondisi} — {level}',
   'notif.pengingat_judul': 'Cek kesehatan berikutnya',
-  'notif.pengingat_pesan': 'Jadwal pengecekan sudah lewat. Buka Health Alert untuk melihat kondisi terkini.',
+  'notif.pengingat_pesan': 'Jadwal pengecekan sudah lewat. Buka FreeAir untuk melihat kondisi terkini.',
 
   'sensor.jantung': 'Detak jantung',
   'sensor.napas': 'Laju napas',
@@ -131,8 +133,9 @@ const Map<String, String> idCore = {
 const Map<String, String> enCore = {
   'nav.beranda': 'Home',
   'nav.profil': 'Profile',
-  'nav.riwayat': 'History',
-  'nav.sumber': 'Sources',
+  'nav.riwayat': 'Alerts',
+  'nav.napas': 'Breathe',
+  'nav.statistik': 'Statistics',
 
   'level.aman': 'Every signal is still inside your normal range',
   'level.waspada': 'Small trigger present — keep an eye on it for 1-2 hours',
@@ -152,6 +155,7 @@ const Map<String, String> enCore = {
   'umum.jam': '{waktu}',
   'umum.cek': '{jumlah} checks',
   'umum.tutup': 'Close',
+  'umum.kembali': 'Back',
   'umum.simpan': 'Save',
   'umum.belum_ada': 'no data',
   'umum.skor_naik': 'WHAT RAISED THE SCORE',
@@ -172,11 +176,12 @@ const Map<String, String> enCore = {
 
   'sumber.simulasi': 'Simulated data',
 
-  'notif.nama_kanal': 'Health Alerts',
+  'notif.nama_kanal': 'FreeAir',
   'notif.deskripsi_kanal': 'Personal health warnings',
   'notif.judul': '⚠️ {kondisi} — {level}',
   'notif.pengingat_judul': 'Next health check',
-  'notif.pengingat_pesan': 'The check window has passed. Open Health Alert to see your latest status.',
+  'notif.pengingat_pesan':
+      'The check window has passed. Open FreeAir to see your latest status.',
 
   'sensor.jantung': 'Heart rate',
   'sensor.napas': 'Breathing rate',

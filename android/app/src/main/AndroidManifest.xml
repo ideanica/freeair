@@ -30,7 +30,7 @@
     </queries>
 
     <application
-        android:label="health_alert"
+        android:label="FreeAir"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

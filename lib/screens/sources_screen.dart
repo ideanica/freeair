@@ -107,8 +107,7 @@ class _SourcesScreenState extends State<SourcesScreen> {
               Expanded(
                 child: KepalaHalaman(
                   judul: kamus.t('sumber.judul'),
-                  ikon: Icons.filter_alt_off_rounded,
-                  onKetukIkon: _tipeAktif.isEmpty ? null : () => _saring(null),
+                  ikon: Icons.menu_book_rounded,
                 ),
               ),
             ],
@@ -233,7 +232,7 @@ class _Ringkasan extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
@@ -270,7 +269,7 @@ class _Ringkasan extends StatelessWidget {
           ),
         ),
         if (perluCek > 0) ...[
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -591,7 +590,7 @@ class _StatusChip extends StatelessWidget {
             child: Text(
               teks,
               style: TextStyle(
-                fontFamily: 'Lato',
+                fontFamily: 'Plus Jakarta Sans',
                 color: color,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,

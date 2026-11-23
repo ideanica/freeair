@@ -63,10 +63,21 @@ const Map<String, String> idProfile = {
   'profil.sumber_angka_judul': 'Sumber angka (jurnal & panduan)',
   'profil.sumber_ajakan':
       'Daftar lengkap setiap rujukan, beserta tautan '
-      'jurnal dan API-nya, ada di tab Sumber.',
+      'jurnal dan API-nya, ada di halaman Sumber & Rujukan.',
   'profil.disclaimer':
       'Semua angka ini divalidasi terhadap guideline, tapi aplikasi '
       'ini alat pantau pribadi — bukan pengganti diagnosis dokter.',
+
+  'profil.kondisi_kartu_sub':
+      'Pilih kondisi yang dipantau dan wilayah cuacamu.',
+  'profil.tampilan_kartu_sub': 'Bahasa dan tema berlaku seketika.',
+  'profil.sumber_kartu_sub': 'Jurnal, pedoman, dan API yang dipakai aplikasi.',
+  'profil.izin_kartu_sub': 'Kelola izin baca sensor dari perangkat.',
+  'profil.kalibrasi_kartu_sub':
+      'Ketuk untuk melihat ambang, kecukupan data, dan sumber angka.',
+  'profil.kalibrasi_sheet_sub':
+      'Semua angka dihitung otomatis — tidak ada yang diketik manual.',
+  'profil.ambang_n': '{n} ambang',
 };
 
 /// Padanan English layar profil.
@@ -133,10 +144,20 @@ const Map<String, String> enProfile = {
       'shift your normal figures.',
   'profil.sumber_angka_judul': 'Where the numbers come from',
   'profil.sumber_ajakan':
-      'The Sources tab lists every reference in full, with its '
+      'The Sources & References page lists every reference in full, with its '
       'journal and API links.',
   'profil.disclaimer':
       'All of these figures are checked against guidelines, but this '
       'app is a personal monitoring tool, not a substitute for a '
       'doctor\'s diagnosis.',
+
+  'profil.kondisi_kartu_sub':
+      'Choose the conditions to monitor and your weather region.',
+  'profil.tampilan_kartu_sub': 'Language and theme apply immediately.',
+  'profil.sumber_kartu_sub': 'Journals, guidelines, and APIs used by the app.',
+  'profil.izin_kartu_sub': 'Manage permission to read device sensors.',
+  'profil.kalibrasi_kartu_sub': 'Tap to see thresholds, data sufficiency, and where the numbers come from.',
+  'profil.kalibrasi_sheet_sub':
+      'Every number is computed automatically — nothing is typed by hand.',
+  'profil.ambang_n': '{n} thresholds',
 };

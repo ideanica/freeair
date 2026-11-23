@@ -67,18 +67,13 @@ flutter:
   assets:
     - assets/rule_config.json
 
-  # Font bawaan template Taskez: Lato, dibundel (bukan diunduh saat runtime)
-  # supaya tampilan tetap sama walau HP sedang offline.
+  # Plus Jakarta Sans dibundel (bukan diunduh saat runtime) supaya tipografi
+  # Just Breathe tetap sama walau HP sedang offline. File-nya variable font,
+  # jadi semua bobot 200-800 dilayani satu berkas.
   fonts:
-    - family: Lato
+    - family: Plus Jakarta Sans
       fonts:
-        - asset: assets/fonts/Lato-Regular.ttf
-        - asset: assets/fonts/Lato-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Lato-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Lato-Black.ttf
-          weight: 900
+        - asset: assets/fonts/PlusJakartaSans-Variable.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

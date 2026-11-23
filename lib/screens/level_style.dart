@@ -5,33 +5,37 @@ import '../models/condition_result.dart';
 
 /// Palet terang dasar — angka aslinya dituliskan satu kali di sini.
 ///
-/// Warnanya diambil dari template Taskez (navy `#181A1F`, biru `#246CFD`,
-/// mauve `#C25FFF`, peach `#FC946E`) lalu dinaikkan kontrasnya supaya teks
-/// tetap terbaca di latar terang. Mode gelap tidak membuat palet baru di
-/// setiap layar, melainkan memakai [AppTones] yang dipilih dari brightness
-/// tema aktif.
+/// Diambil dari design system Just Breathe (Stitch): biru langit `#1EB6F0`,
+/// navy `#0F2A43`, dan latar es `#F4FAFF`. Warna level memakai nada yang lebih
+/// dalam daripada pastel DESIGN.md supaya teks di atas putih tetap lolos
+/// kontras 4.5:1; pastelnya dipakai sebagai bidang, bukan tinta.
 class AppPalette {
   const AppPalette._();
 
-  static const Color aksen = Color(0xFF246CFD);
-  static const Color aksenDeep = Color(0xFF1846B4);
-  static const Color aksenSoft = Color(0xFFE3ECFF);
+  static const Color aksen = Color(0xFF1EB6F0);
+  static const Color aksenDeep = Color(0xFF0877AE);
+  static const Color aksenSoft = Color(0xFFCDEBFF);
 
-  /// Lavender tipis, padanan terang dari latar navy template.
-  static const Color canvas = Color(0xFFF3F1F8);
+  static const Color canvas = Color(0xFFF4FAFF);
   static const Color card = Colors.white;
-  static const Color line = Color(0xFFE3DFEE);
+  static const Color line = Color(0xFFD6E6F2);
 
-  /// Navy template `#181A1F` dipakai sebagai warna teks, bukan latar.
-  static const Color ink = Color(0xFF1B1D26);
-  static const Color inkSoft = Color(0xFF666A7B);
+  static const Color ink = Color(0xFF0F2A43);
+  static const Color inkSoft = Color(0xFF5A6B82);
 
   static const Color aman = Color(0xFF2E9E63);
-  static const Color waspada = Color(0xFFB8791A);
-  static const Color perhatian = Color(0xFFDC6B2E);
-  static const Color bahaya = Color(0xFFC9414C);
-  static const Color netral = Color(0xFF6B7280);
-  static const Color mauve = Color(0xFF8B3FCB);
+  static const Color waspada = Color(0xFFB07A00);
+  static const Color perhatian = Color(0xFFC2620F);
+  static const Color bahaya = Color(0xFFD93025);
+  static const Color netral = Color(0xFF6B7A8C);
+  static const Color mauve = Color(0xFF8B5CF6);
+
+  /// Skala AQI persis DESIGN.md, dipakai untuk bar dan titik status.
+  static const Color aqiGood = Color(0xFF3CCB7F);
+  static const Color aqiModerate = Color(0xFFFFC94D);
+  static const Color aqiSensitive = Color(0xFFFF9F43);
+  static const Color aqiUnhealthy = Color(0xFFFF5C5C);
+  static const Color aqiHazardous = Color(0xFFA56CF0);
 }
 
 /// Token warna yang dibaca dari tema aktif.
@@ -80,37 +84,36 @@ class AppTones {
     netral: AppPalette.netral,
     mauve: AppPalette.mauve,
     onAksen: Colors.white,
-    panel: Color(0xFFEDE9F7),
-    sinyal: Color(0xFFFF9B76),
-    bayangan: AppPalette.ink,
-    shadowAlpha: 0.07,
-    gradien: [Color(0xFFEDE7F8), Color(0xFFF3F1F8)],
+    panel: Color(0xFFEAF4FC),
+    sinyal: Color(0xFFFF9F43),
+    bayangan: Color(0xFF0877AE),
+    shadowAlpha: 0.10,
+    gradien: [Color(0xFFE8F6FF), Color(0xFFF4FAFF)],
     gradasi: _gradasiTerang,
   );
 
-  /// Latar navy `#181A1F` + radial ke `#1D192D` seperti template Taskez; kartu
-  /// satu tingkat lebih terang (`#1F222B`) supaya tetap terbaca sebagai bidang.
+  /// Malam di kota: navy dalam dengan aksen biru langit yang tetap lembut.
   static const AppTones gelap = AppTones(
-    aksen: Color(0xFF4A85FF),
-    aksenDeep: Color(0xFF9DC0FF),
-    aksenSoft: Color(0xFF18243C),
-    canvas: Color(0xFF181A1F),
-    card: Color(0xFF1F222B),
-    line: Color(0xFF31333D),
-    ink: Color(0xFFF3F5FA),
-    inkSoft: Color(0xFF97A0B4),
-    aman: Color(0xFF94D57B),
-    waspada: Color(0xFFFFD996),
-    perhatian: Color(0xFFFC946E),
-    bahaya: Color(0xFFFF7B7B),
-    netral: Color(0xFF8FA0B5),
-    mauve: Color(0xFFC25FFF),
-    onAksen: Color(0xFF0B1220),
-    panel: Color(0xFF20222A),
-    sinyal: Color(0xFFFF9B76),
+    aksen: Color(0xFF4FC3F7),
+    aksenDeep: Color(0xFF9AD9F5),
+    aksenSoft: Color(0xFF10344A),
+    canvas: Color(0xFF071C2C),
+    card: Color(0xFF0F2A43),
+    line: Color(0xFF1D3E55),
+    ink: Color(0xFFE9F1FF),
+    inkSoft: Color(0xFF9AB0C4),
+    aman: Color(0xFF4FD08A),
+    waspada: Color(0xFFFFD166),
+    perhatian: Color(0xFFFFA45C),
+    bahaya: Color(0xFFFF6B6B),
+    netral: Color(0xFF93A5B8),
+    mauve: Color(0xFFB794F6),
+    onAksen: Color(0xFF04212F),
+    panel: Color(0xFF0B2436),
+    sinyal: Color(0xFFFF9F43),
     bayangan: Colors.black,
-    shadowAlpha: 0.42,
-    gradien: [Color(0xFF1D192D), Color(0xFF181A1F)],
+    shadowAlpha: 0.50,
+    gradien: [Color(0xFF0B2A40), Color(0xFF071C2C)],
     gradasi: _gradasiGelap,
   );
 
@@ -161,14 +164,14 @@ class AppTones {
 
   /// Teks di atas kartu bergradien pastel: selalu navy, di mode apa pun,
   /// karena pastelnya terang di kedua tema.
-  static const Color onGradien = Color(0xFF181A1F);
+  static const Color onGradien = Color(0xFF0F2A43);
 
   static const Map<String, List<Color>> _gradasiTerang = {
-    AlertLevels.aman: [Color(0xFF9FF0C4), Color(0xFF63BE86)],
-    AlertLevels.waspada: [Color(0xFFFFE2AC), Color(0xFFE3AE5D)],
-    AlertLevels.perhatian: [Color(0xFFFFB494), Color(0xFFE07B47)],
-    AlertLevels.bahaya: [Color(0xFFFFB1B1), Color(0xFFDE6570)],
-    AlertLevels.tidakDievaluasi: [Color(0xFFBFE3EA), Color(0xFFC8B0EF)],
+    AlertLevels.aman: [Color(0xFFD6F7E4), Color(0xFF9BE8BC)],
+    AlertLevels.waspada: [Color(0xFFFFF0CC), Color(0xFFFFD98A)],
+    AlertLevels.perhatian: [Color(0xFFFFE3D1), Color(0xFFFFB98C)],
+    AlertLevels.bahaya: [Color(0xFFFFDCDC), Color(0xFFFFA3A3)],
+    AlertLevels.tidakDievaluasi: [Color(0xFFDFF3FB), Color(0xFFC9E8F6)],
   };
 
   /// Versi gelap sedikit lebih dalam supaya tidak menyilaukan di latar navy,
@@ -176,9 +179,9 @@ class AppTones {
   static const Map<String, List<Color>> _gradasiGelap = {
     AlertLevels.aman: [Color(0xFF87EFB5), Color(0xFF57B98A)],
     AlertLevels.waspada: [Color(0xFFFFD996), Color(0xFFD9A75C)],
-    AlertLevels.perhatian: [Color(0xFFFC946E), Color(0xFFD2724E)],
+    AlertLevels.perhatian: [Color(0xFFFFB98C), Color(0xFFD2724E)],
     AlertLevels.bahaya: [Color(0xFFF89A9A), Color(0xFFCF5F6C)],
-    AlertLevels.tidakDievaluasi: [Color(0xFF87D3DF), Color(0xFFAE93D8)],
+    AlertLevels.tidakDievaluasi: [Color(0xFFB9E6F7), Color(0xFF8CC9E4)],
   };
 
   Color level(String namaLevel) => switch (namaLevel) {
@@ -203,147 +206,225 @@ class AppTones {
   Color levelSurface(String namaLevel) =>
       Color.alphaBlend(level(namaLevel).withValues(alpha: 0.10), card);
 
-  /// Latar layar: radial dari sudut, persis `DarkRadialBackground` template.
+  /// Latar layar: gradasi vertikal "langit pagi" dari [gradien].
+  ///
+  /// Glow lembut di dua sudut dipasang oleh [LatarJustBreathe] karena
+  /// [BoxDecoration] hanya bisa memuat satu gradient.
   BoxDecoration radialLatar() => BoxDecoration(
-    gradient: RadialGradient(
-      center: const Alignment(-0.9, -1.0),
-      radius: 1.4,
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
       colors: [...gradien],
     ),
   );
 
-  /// Bayangan kartu template: tipis, offset ke kanan-bawah.
+  /// Bayangan kartu Just Breathe: biru tipis, blur 24, turun 8px.
   ///
   /// Tint-nya [bayangan], bukan [ink]: di mode gelap ink hampir putih, jadi
   /// kalau ikut warna teks kartu akan berhalo terang alih-alih berbayang.
   List<BoxShadow> softShadow({Color? tint}) => [
     BoxShadow(
-      color: (tint ?? bayangan).withValues(alpha: shadowAlpha),
-      blurRadius: 12,
-      offset: const Offset(4, 8),
-    ),
-    BoxShadow(
-      color: (tint ?? bayangan).withValues(alpha: shadowAlpha * 0.45),
-      blurRadius: 2,
-      offset: const Offset(0, 1),
+      color: (tint ?? bayangan).withValues(alpha: shadowAlpha * 0.55),
+      blurRadius: 14,
+      offset: const Offset(0, 4),
     ),
   ];
+
+  /// Warna status untuk skala AQI 0-300+.
+  static Color aqiBand(double aqi) {
+    if (aqi <= 50) return AppPalette.aqiGood;
+    if (aqi <= 100) return AppPalette.aqiModerate;
+    if (aqi <= 150) return AppPalette.aqiSensitive;
+    if (aqi <= 200) return AppPalette.aqiUnhealthy;
+    return AppPalette.aqiHazardous;
+  }
 }
 
-/// Skala tipografi Lato yang dipakai template Taskez di seluruh layarnya.
+/// Latar aplikasi: gradasi vertikal plus dua glow radial tipis, persis
+/// "soft sky-blue gradients with faint blurred light glows" di DESIGN.md.
+class LatarJustBreathe extends StatelessWidget {
+  const LatarJustBreathe({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final tones = AppTones.of(context);
+    final gelap = Theme.of(context).brightness == Brightness.dark;
+    return DecoratedBox(
+      decoration: tones.radialLatar(),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -140,
+            right: -100,
+            child: IgnorePointer(
+              child: Container(
+                width: 320,
+                height: 320,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      tones.aksen.withValues(alpha: gelap ? 0.16 : 0.22),
+                      tones.aksen.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 380,
+            left: -160,
+            child: IgnorePointer(
+              child: Container(
+                width: 360,
+                height: 360,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      tones.aksenSoft.withValues(alpha: gelap ? 0.10 : 0.55),
+                      tones.aksenSoft.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+/// Skala tipografi Just Breathe.
 ///
-/// Template menulis ukuran per-komponen (bukan token Material), jadi angka
-/// aslinya dikumpulkan di sini: sapaan 40, judul halaman 25, judul kartu 20
-/// w600, judul hero 22, teks isi 16, label seksi 12 bold, badge 11-12. Semua
-/// sudah termasuk warna dari [AppTones] supaya mode gelap ikut berganti.
+/// DESIGN.md menulis display-xl 56/800, headline-md 22/700, title-sm 16/600,
+/// body-md 14/400, caption 12/500. Angka-angka itu dipetakan ke nama peran
+/// yang sudah dipakai seluruh layar supaya layar lama ikut berubah tanpa
+/// disentuh satu per satu.
 class AppTeks {
   const AppTeks._();
 
-  static const TextStyle _lato = TextStyle(fontFamily: 'Lato');
+  static const TextStyle _jakarta = TextStyle(fontFamily: 'Plus Jakarta Sans');
 
-  /// "Hello,\nDereck Doyle" di `dashboard.dart`.
-  static TextStyle sapaan(AppTones t) => _lato.copyWith(
-    fontSize: 40,
-    height: 1.1,
-    fontWeight: FontWeight.bold,
+  /// Sapaan besar di beranda.
+  static TextStyle sapaan(AppTones t) => _jakarta.copyWith(
+    fontSize: 28,
+    height: 1.15,
+    fontWeight: FontWeight.w800,
     color: t.ink,
   );
 
-  /// Judul layar `AppTextStyles.header2` / `app_header.dart`.
-  static TextStyle judulHalaman(AppTones t) =>
-      _lato.copyWith(fontSize: 25, fontWeight: FontWeight.bold, color: t.ink);
+  /// Judul layar (headline-md).
+  static TextStyle judulHalaman(AppTones t) => _jakarta.copyWith(
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: t.ink,
+  );
 
-  /// Juduk `OverviewTaskContainer` dan judul kartu besar.
-  static TextStyle judulKartu(AppTones t) => _lato.copyWith(
-    fontSize: 20,
-    fontWeight: FontWeight.w600,
+  /// Judul kartu besar.
+  static TextStyle judulKartu(AppTones t) => _jakarta.copyWith(
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
     height: 1.25,
     color: t.ink,
   );
 
-  /// Judul di atas kartu bergradien pastel, persis `TaskProgressCard`.
-  static TextStyle judulHero(AppTones t) => _lato.copyWith(
+  /// Judul di atas kartu bergradien pastel.
+  static TextStyle judulHero(AppTones t) => _jakarta.copyWith(
     fontSize: 22,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w700,
     color: AppTones.onGradien,
   );
 
-  /// Label `BadgedContainer` dan angka besar.
-  static TextStyle judulBaris(AppTones t) =>
-      _lato.copyWith(fontSize: 17, fontWeight: FontWeight.bold, color: t.ink);
+  /// Label baris dan judul kecil (title-sm).
+  static TextStyle judulBaris(AppTones t) => _jakarta.copyWith(
+    fontSize: 16,
+    fontWeight: FontWeight.w700,
+    color: t.ink,
+  );
 
-  /// Eyebrow `DailyGoalCard`: keterangan 17 w500 di atas angka.
-  static TextStyle eyebrow(AppTones t) => _lato.copyWith(
-    fontSize: 17,
+  /// Keterangan pendamping angka.
+  static TextStyle eyebrow(AppTones t) => _jakarta.copyWith(
+    fontSize: 14,
     fontWeight: FontWeight.w500,
     color: t.inkSoft,
   );
 
-  /// Teks isi template (tanpa height — Lato sudah longgar).
-  static TextStyle isi(AppTones t) => _lato.copyWith(
-    fontSize: 16,
-    height: 1.35,
-    fontWeight: FontWeight.w500,
+  /// Teks isi (body-md).
+  static TextStyle isi(AppTones t) => _jakarta.copyWith(
+    fontSize: 14,
+    height: 1.45,
+    fontWeight: FontWeight.w400,
     color: t.ink,
   );
 
   static TextStyle isiSoft(AppTones t) => isi(t).copyWith(color: t.inkSoft);
 
-  /// `ContainerLabel`: label seksi kecil yang digantung di atas kartu.
-  static TextStyle labelSeksi(AppTones t) => _lato.copyWith(
+  /// Label seksi (caption).
+  static TextStyle labelSeksi(AppTones t) => _jakarta.copyWith(
     fontSize: 12,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0.1,
     color: t.inkSoft,
   );
 
   /// Angka dalam kartu: tabular supaya kolomnya tidak bergeser.
-  static TextStyle angka(AppTones t) => _lato.copyWith(
+  static TextStyle angka(AppTones t) => _jakarta.copyWith(
     fontSize: 20,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     color: t.ink,
     fontFeatures: const [FontFeature.tabularFigures()],
   );
 
-  /// Teks tombol pil / tautan aksi (`text_button.dart`, `PrimaryTabButton`).
-  static TextStyle tautan(AppTones t) => _lato.copyWith(
-    fontSize: 16,
-    fontWeight: FontWeight.bold,
+  /// Angka hero AQI (display-xl) dengan satuan kecil di sebelahnya.
+  static TextStyle displayAngka(AppTones t) => _jakarta.copyWith(
+    fontSize: 56,
+    height: 1,
+    fontWeight: FontWeight.w800,
+    color: t.ink,
+    fontFeatures: const [FontFeature.tabularFigures()],
+  );
+
+  /// Teks tombol pil / tautan aksi.
+  static TextStyle tautan(AppTones t) => _jakarta.copyWith(
+    fontSize: 14,
+    fontWeight: FontWeight.w700,
     color: t.aksenDeep,
   );
 
   /// Isi badge bulat di kepala halaman.
-  static TextStyle badge(AppTones t) => _lato.copyWith(
+  static TextStyle badge(AppTones t) => _jakarta.copyWith(
     fontSize: 11,
-    fontWeight: FontWeight.bold,
+    fontWeight: FontWeight.w700,
     color: Colors.white,
   );
 }
 
-/// Ukuran layout yang sama dipakai semua layar — angka aslinya dari template.
+/// Ukuran layout Just Breathe: padding 20, kartu radius 24, pil penuh.
 class AppLayout {
   const AppLayout._();
 
-  /// `EdgeInsets.all(20.0)` di `dashboard.dart`, `search_screen.dart`.
   static const EdgeInsets paddingHalaman = EdgeInsets.all(20);
 
-  /// Jarak antar blok utama (`AppSpaces.verticalSpace20`).
-  static const Widget jarak = SizedBox(height: 20);
+  static const Widget jarak = SizedBox(height: 16);
 
-  /// Jarak label seksi ke kartunya (`verticalSpace10`).
   static const Widget jarakKecil = SizedBox(height: 10);
 
-  /// Radius kartu besar, kontainer daftar, dan pil (`20 / 10 / 50`).
-  static const double radiusKartu = 20;
-  static const double radiusGrup = 10;
-  static const double radiusPil = 50;
+  static const double radiusKartu = 14;
+  static const double radiusGrup = 12;
+  static const double radiusPil = 999;
 
-  /// Tinggi bar navigasi template (`timeline.dart`), termasuk diamond di
-  /// bawah ikon aktif.
-  static const double tinggiBar = 90;
+  /// Tinggi bar navigasi mengambang; Scaffold memakai tinggi ini sebagai
+  /// ruang bawah, jadi konten tidak tertutup pil.
+  static const double tinggiBar = 88;
 
-  /// Ruang kosong di bawah konten. Bar navigasi sekarang benar-benar menjadi
-  /// `bottomNavigationBar`, jadi Scaffold yang menghitung sisanya dan konten
-  /// cuma butuh satu padding halaman biasa.
+  /// Ruang kosong di bawah konten; bar navigasi mengambang menambah
+  /// [tinggiBar] lewat `bottomNavigationBar`.
   static double bawahKonten(BuildContext context) => 20;
 }
 
@@ -424,7 +505,7 @@ class SectionCard extends StatelessWidget {
     this.warnaIkon,
     this.gradasi,
     this.ukuranJudul,
-    this.margin = const EdgeInsets.only(bottom: 20),
+    this.margin = const EdgeInsets.only(bottom: 16),
     super.key,
   });
 
@@ -1044,7 +1125,7 @@ class PilTab extends StatelessWidget {
             child: Text(
               teks,
               style: TextStyle(
-                fontFamily: 'Lato',
+                fontFamily: 'Plus Jakarta Sans',
                 fontSize: ukuranTeks,
                 fontWeight: aktif ? FontWeight.bold : FontWeight.w500,
                 color: aktif ? Colors.white : tones.ink,
@@ -1159,7 +1240,7 @@ class InfoChip extends StatelessWidget {
                 teks,
                 maxLines: 1,
                 style: TextStyle(
-                  fontFamily: 'Lato',
+                  fontFamily: 'Plus Jakarta Sans',
                   color: color,
                   fontSize: 11,
                   fontWeight: berat,
@@ -1206,7 +1287,7 @@ class LevelChip extends StatelessWidget {
                 level,
                 maxLines: 1,
                 style: TextStyle(
-                  fontFamily: 'Lato',
+                  fontFamily: 'Plus Jakarta Sans',
                   color: color,
                   fontWeight: FontWeight.bold,
                   fontSize: 10.5,
@@ -1263,7 +1344,7 @@ class ScoreGauge extends StatelessWidget {
             Text(
               '$skor',
               style: TextStyle(
-                fontFamily: 'Lato',
+                fontFamily: 'Plus Jakarta Sans',
                 color: color,
                 fontSize: size * 0.34,
                 fontWeight: FontWeight.bold,
@@ -1313,7 +1394,7 @@ class KalibrasiChip extends StatelessWidget {
                 }),
                 maxLines: 1,
                 style: TextStyle(
-                  fontFamily: 'Lato',
+                  fontFamily: 'Plus Jakarta Sans',
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                   color: warna,

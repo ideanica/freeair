@@ -1,6 +1,6 @@
 /// Teks layar Riwayat. Kunci diawali `riwayat.`.
 const Map<String, String> idHistory = {
-  'riwayat.judul': 'Riwayat Cek',
+  'riwayat.judul': 'Alerts',
   'riwayat.muat_ulang': 'Muat ulang riwayat',
   'riwayat.gagal': 'Riwayat gagal dibaca',
   'riwayat.kosong_judul': 'Belum ada riwayat',
@@ -24,7 +24,7 @@ const Map<String, String> idHistory = {
 
 /// Padanan English layar Riwayat.
 const Map<String, String> enHistory = {
-  'riwayat.judul': 'Check History',
+  'riwayat.judul': 'Alerts',
   'riwayat.muat_ulang': 'Reload history',
   'riwayat.gagal': 'Could not read history',
   'riwayat.kosong_judul': 'No history yet',

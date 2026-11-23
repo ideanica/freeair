@@ -5,9 +5,13 @@ import '../l10n/l10n.dart';
 import '../models/condition_result.dart';
 import '../models/health_profile.dart';
 import '../models/pemeriksaan.dart';
+import '../models/air_quality.dart';
 import '../models/sensor_snapshot.dart';
+import '../models/weather_forecast.dart';
 import '../services/alert_orchestrator.dart';
 import '../services/health_services.dart';
+import '../widgets/jb.dart';
+import 'breathe_screen.dart';
 import 'level_style.dart';
 
 /// Beranda tanpa input manual.
@@ -101,13 +105,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final kamus = L10n.of(context);
     final tones = AppTones.of(context);
     final nama = _profil?.nama.trim();
-    final adaNama = nama != null && nama.isNotEmpty;
-    final alert = (_outcome?.results ?? const <ConditionResult>[]).where(
-      (r) => AlertLevels.levelButuhAlert(r.level),
-    );
+    final outcome = _outcome;
+    final hasil = outcome?.results ?? const <ConditionResult>[];
+    final alert = hasil.where((r) => AlertLevels.levelButuhAlert(r.level));
+    final udara = outcome?.udara;
+    final cuaca = outcome?.cuaca;
+    final aqi = udara?.usAqi ?? _aqiDariPm25(udara?.pm25);
+    final status = _statusAqi(aqi);
+
     return Scaffold(
-      // Header sticky diletakkan di SliverAppBar pinned agar tetap terlihat
-      // saat pengguna menggulir konten ke bawah.
       body: RefreshIndicator(
         onRefresh: () async {
           await _loadProfil();
@@ -117,131 +123,89 @@ class _HomeScreenState extends State<HomeScreen> {
           bottom: false,
           child: CustomScrollView(
             slivers: [
-              // ── Sticky app-bar: judul + notif + avatar ────────────────────
-              SliverAppBar(
-                pinned: true,
-                floating: false,
-                snap: false,
-                expandedHeight: 0,
-                toolbarHeight: 62,
-                backgroundColor: tones.canvas.withValues(alpha: 0.97),
-                surfaceTintColor: Colors.transparent,
-                shadowColor: tones.bayangan.withValues(alpha: 0.12),
-                elevation: 1,
-                automaticallyImplyLeading: false,
-                flexibleSpace: SafeArea(
-                  bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-                    child: KepalaHalaman(
-                      judul: kamus.t('beranda.judul_app'),
-                      ikon: Icons.notifications_outlined,
-                      jumlah: alert.isEmpty ? null : alert.length,
-                      onKetukIkon: () =>
-                          Navigator.pushNamed(context, '/history'),
-                      onKetukAvatar: () =>
-                          Navigator.pushNamed(context, '/profile'),
-                      namaAvatar: adaNama ? nama : null,
-                    ),
-                  ),
-                ),
-              ),
-              // ── Konten yang bisa di-scroll ────────────────────────────────
               SliverPadding(
                 padding: EdgeInsets.fromLTRB(
                   20,
-                  12,
+                  16,
                   20,
                   AppLayout.bawahKonten(context),
                 ),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    // Sapaan ringkas satu baris
-                    if (adaNama)
-                      _SapaanRingkas(nama: nama)
-                    else
-                      Text(
-                        kamus.t('beranda.subtitle'),
-                        style: AppTeks.labelSeksi(tones)
-                            .copyWith(color: tones.inkSoft),
+                    _sapaan(kamus, tones, nama, alert.length),
+                    const SizedBox(height: 16),
+                    _HeroAqi(
+                      aqi: aqi,
+                      status: status,
+                      kamus: kamus,
+                      tones: tones,
+                      diperbarui: outcome?.at,
+                    ),
+                    if (alert.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _AlertBanner(
+                        hasil: alert.reduce((a, b) => a.skor >= b.skor ? a : b),
+                        kamus: kamus,
+                        tones: tones,
+                        onTap: () => Navigator.pushNamed(context, '/history'),
                       ),
-                    const SizedBox(height: 12),
-                    if (!AppConfig.ENABLE_NOTIFICATIONS)
-                      const _ObservationBanner(),
-                    if (_error != null)
+                    ],
+                    const SizedBox(height: 16),
+                    _tombolSinkron(kamus, tones),
+                    if (_error != null) ...[
+                      const SizedBox(height: 16),
                       _ErrorBanner(
                         pesan: kamus.t('beranda.gagal', {'error': _error!}),
                       ),
-                    _StatusHero(
-                      outcome: _outcome,
-                      sumberData: widget.healthService.sourceLabel,
-                      sedangCek: _sedangCek,
-                      onCek: _sedangCek ? null : _jalanCek,
-                      onCekPaksa: _sedangCek
+                    ],
+                    const SizedBox(height: 16),
+                    _MiniStats(
+                      udara: udara,
+                      cuaca: cuaca,
+                      kamus: kamus,
+                      tones: tones,
+                    ),
+                    if (!AppConfig.ENABLE_NOTIFICATIONS) ...[
+                      const SizedBox(height: 16),
+                      const _ObservationBanner(),
+                    ],
+                    const SizedBox(height: 16),
+                    _KondisiRingkas(
+                      hasil: hasil,
+                      outcome: outcome,
+                      kamus: kamus,
+                      tones: tones,
+                      onTap: outcome == null
+                          ? null
+                          : () => _bukaKondisi(context, outcome),
+                    ),
+                    const SizedBox(height: 16),
+                    _PemantauanKartu(
+                      outcome: outcome,
+                      kamus: kamus,
+                      tones: tones,
+                      onTap: outcome == null
+                          ? null
+                          : () => _bukaPemantauan(context, outcome),
+                    ),
+                    JbSectionTitle(
+                      title: kamus.t('beranda.kebiasaan_judul'),
+                      trailing: TextButton(
+                        onPressed: () => _bukaNapas(context),
+                        child: Text(kamus.t('beranda.lihat_semua')),
+                      ),
+                    ),
+                    _KartuKebiasaan(
+                      cuaca: cuaca,
+                      status: status,
+                      kamus: kamus,
+                      tones: tones,
+                      onNapas: () => _bukaNapas(context),
+                      onSinkron: _sedangCek
                           ? null
                           : () => _jalanCek(paksaCuaca: true),
                     ),
-                    const SizedBox(height: 5),
-                    Text(
-                      kamus.t('beranda.tombol_jelas', {
-                        'menit': '${AppConfig.CYCLE_INTERVAL_MINUTES}',
-                      }),
-                      textAlign: TextAlign.center,
-                      style: AppTeks.labelSeksi(tones),
-                    ),
-                    // ─── Hasil kondisi ───────────────────────────────────────
-                    _SeksiHeader(
-                      judul: kamus.t('beranda.seksi_kondisi'),
-                      info: kamus.t('beranda.seksi_kondisi_info'),
-                      ikon: Icons.medical_services_outlined,
-                      trailing: _outcome == null
-                          ? null
-                          : InfoChip(
-                              teks: kamus.t('umum.jam', {
-                                'waktu': _jam(_outcome!.at),
-                              }),
-                              ikon: Icons.schedule_rounded,
-                            ),
-                    ),
-                    if (_outcome == null)
-                      EmptyState(
-                        ikon: Icons.monitor_heart_outlined,
-                        judul: kamus.t('beranda.kosong_judul'),
-                        pesan: kamus.t('beranda.kosong_pesan'),
-                      )
-                    else
-                      ..._outcome!.results.map(
-                        (r) => Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: HasilKartu(hasil: r),
-                        ),
-                      ),
-                    // ─── Status izin ─────────────────────────────────────────
-                    if (_outcome != null) ...[
-                      _SeksiHeader(
-                        judul: kamus.t('beranda.grup_sumber'),
-                        info: kamus.t('beranda.sumber_data_info'),
-                        ikon: Icons.sensors_outlined,
-                      ),
-                      _StatusSinyal(
-                        snapshot: _outcome!.snapshot,
-                        onMintaIzin: _mintaIzin,
-                      ),
-                    ],
-                    // ─── Sensor tubuh terkelompok ────────────────────────────
-                    if (_outcome?.snapshot != null) ...[
-                      _SeksiHeader(
-                        judul: kamus.t('beranda.seksi_sensor'),
-                        info: kamus.t('beranda.seksi_sensor_info'),
-                        ikon: Icons.watch_outlined,
-                      ),
-                      _GrupSensor(snapshot: _outcome!.snapshot),
-                    ],
-                    // ─── Kalibrasi ambang ────────────────────────────────────
-                    if (_outcome != null) ...[
-                      const SizedBox(height: 6),
-                      _KalibrasiKartu(outcome: _outcome!),
-                    ],
+                    const SizedBox(height: 8),
                   ]),
                 ),
               ),
@@ -252,80 +216,240 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  static String _jam(DateTime waktu) =>
-      '${waktu.hour.toString().padLeft(2, '0')}:'
-      '${waktu.minute.toString().padLeft(2, '0')}';
-}
-
-// ─────────────────────────────────────── Sapaan ringkas satu baris di bawah header
-class _SapaanRingkas extends StatelessWidget {
-  const _SapaanRingkas({required this.nama});
-  final String nama;
-
-  @override
-  Widget build(BuildContext context) {
-    final tones = AppTones.of(context);
+  /// Detail kondisi dibuka dari kartu ringkas: alasan skor, sinyal yang
+  /// diperiksa, dan saran tindakan tidak lagi memenuhi Beranda.
+  void _bukaKondisi(BuildContext context, CycleOutcome outcome) {
     final kamus = L10n.of(context);
-    // Potong nama ke maksimal 18 karakter agar tetap satu baris
-    final pendek = nama.length > 18 ? '${nama.substring(0, 16)}…' : nama;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _LembarDetail(
+        judul: kamus.t('beranda.kondisi_saat_ini'),
+        sub: kamus.t('beranda.kondisi_sheet_sub'),
+        anak: Column(
+          children: [
+            for (final r in outcome.results) ...[
+              HasilKartu(hasil: r),
+              const SizedBox(height: 12),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Data sensor, status sumber, dan kalibrasi ambang dibuka dari satu kartu
+  /// "Pemantauan" agar Beranda tetap ringkas.
+  void _bukaPemantauan(BuildContext context, CycleOutcome outcome) {
+    final kamus = L10n.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _LembarDetail(
+        judul: kamus.t('beranda.pemantauan_judul'),
+        sub: kamus.t('beranda.pemantauan_sub'),
+        anak: Column(
+          children: [
+            _StatusSinyal(
+              snapshot: outcome.snapshot,
+              onMintaIzin: () {
+                Navigator.pop(context);
+                _mintaIzin();
+              },
+            ),
+            const SizedBox(height: 14),
+            _GrupSensor(snapshot: outcome.snapshot),
+            const SizedBox(height: 14),
+            _KalibrasiKartu(outcome: outcome),
+            const SizedBox(height: 14),
+            _SumberCatatan(
+              sumber: widget.healthService.sourceLabel,
+              kamus: kamus,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _bukaNapas(BuildContext context) {
+    Navigator.of(context)
+        .push(MaterialPageRoute<void>(builder: (_) => const BreatheScreen()));
+  }
+
+  /// Sapaan + avatar + lonceng. Tinggi tetap supaya tanggal tidak melompat
+  /// saat nama pengguna kosong.
+  Widget _sapaan(L10n kamus, AppTones tones, String? nama, int jumlahAlert) {
+    final jam = DateTime.now().hour;
+    final kunci = jam < 11
+        ? 'beranda.selamat_pagi'
+        : (jam < 15
+              ? 'beranda.selamat_siang'
+              : (jam < 19 ? 'beranda.selamat_sore' : 'beranda.selamat_malam'));
+    final adaNama = nama != null && nama.trim().isNotEmpty;
+    final pendek = !adaNama
+        ? ''
+        : (nama.length > 20 ? '${nama.substring(0, 18)}…' : nama);
     return Row(
-      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          '${kamus.t('beranda.sapaan')} $pendek 👋',
-          style: AppTeks.labelSeksi(tones).copyWith(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: tones.ink,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (adaNama) ...[
+                Text(
+                  kamus.t(kunci),
+                  style: AppTeks.labelSeksi(tones)
+                      .copyWith(fontSize: 12.5, color: tones.inkSoft),
+                ),
+                const SizedBox(height: 2),
+              ],
+              Text(
+                adaNama ? pendek : kamus.t(kunci),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTeks.sapaan(tones).copyWith(fontSize: 24),
+              ),
+            ],
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(width: 8),
+        JbIconButton(
+          icon: Icons.notifications_none_rounded,
+          badge: jumlahAlert,
+          tooltip: kamus.t('beranda.nav_alert'),
+          onTap: () => Navigator.pushNamed(context, '/history'),
         ),
       ],
     );
   }
-}
 
-// ─────────────────────────────────────────── Header seksi dengan info tooltip ─
-class _SeksiHeader extends StatelessWidget {
-  const _SeksiHeader({
-    required this.judul,
-    required this.info,
-    required this.ikon,
-    this.trailing,
-  });
-
-  final String judul;
-  final String info;
-  final IconData ikon;
-  final Widget? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    final tones = AppTones.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
-      child: Row(
-        children: [
-          Icon(ikon, size: 16, color: tones.inkSoft),
-          const SizedBox(width: 7),
-          Expanded(
-            child: Text(judul.toUpperCase(), style: AppTeks.labelSeksi(tones)),
-          ),
-          if (trailing != null) ...[const SizedBox(width: 8), trailing!],
-          const SizedBox(width: 4),
-          Tooltip(
-            message: info,
-            triggerMode: TooltipTriggerMode.tap,
-            showDuration: const Duration(seconds: 5),
-            child: Icon(
-              Icons.info_outline_rounded,
-              size: 16,
-              color: tones.inkSoft,
+  Widget _tombolSinkron(L10n kamus, AppTones tones) {
+    return Row(
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 48,
+            child: FilledButton.icon(
+              onPressed: _sedangCek ? null : _jalanCek,
+              icon: _sedangCek
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.sync_rounded, size: 20),
+              label: Text(
+                _sedangCek
+                    ? kamus.t('beranda.tombol_cek_sibuk')
+                    : kamus.t('beranda.tombol_cek'),
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 10),
+        Tooltip(
+          message: kamus.t('beranda.tooltip_sinkron'),
+          child: SizedBox(
+            height: 48,
+            width: 48,
+            child: IconButton(
+              onPressed: _sedangCek ? null : () => _jalanCek(paksaCuaca: true),
+              icon: const Icon(Icons.refresh_rounded, size: 21),
+              style: IconButton.styleFrom(
+                backgroundColor: tones.card,
+                foregroundColor: tones.aksenDeep,
+                shape: const CircleBorder(),
+                elevation: 2,
+                shadowColor: tones.bayangan.withValues(alpha: 0.2),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// US AQI perkiraan dari PM2.5 bila API tidak mengirim `us_aqi` langsung.
+  /// Breakpoint-nya breakpoint EPA 2024, bukan angka karangan.
+  static double? _aqiDariPm25(double? pm25) {
+    if (pm25 == null) return null;
+    const batas = [
+      (0.0, 12.0, 0.0, 50.0),
+      (12.1, 35.4, 51.0, 100.0),
+      (35.5, 55.4, 101.0, 150.0),
+      (55.5, 150.4, 151.0, 200.0),
+      (150.5, 250.4, 201.0, 300.0),
+      (250.5, 500.4, 301.0, 500.0),
+    ];
+    for (final b in batas) {
+      if (pm25 <= b.$2) {
+        final rasio = (pm25 - b.$1) / (b.$2 - b.$1);
+        return (b.$3 + rasio * (b.$4 - b.$3)).clamp(0, 500);
+      }
+    }
+    return 500;
+  }
+
+  static _StatusAqi _statusAqi(double? aqi) {
+    if (aqi == null) {
+      return const _StatusAqi(
+        'beranda.aqi_status_kosong',
+        'beranda.aqi_kosong',
+        AppPalette.netral,
+        null,
+      );
+    }
+    if (aqi <= 50) {
+      return const _StatusAqi(
+        'beranda.status_baik',
+        'beranda.status_baik_desc',
+        AppPalette.aqiGood,
+        50,
+      );
+    }
+    if (aqi <= 100) {
+      return const _StatusAqi(
+        'beranda.status_sedang',
+        'beranda.status_sedang_desc',
+        AppPalette.aqiModerate,
+        100,
+      );
+    }
+    if (aqi <= 150) {
+      return const _StatusAqi(
+        'beranda.status_sensitif',
+        'beranda.status_sensitif_desc',
+        AppPalette.aqiSensitive,
+        150,
+      );
+    }
+    if (aqi <= 200) {
+      return const _StatusAqi(
+        'beranda.status_tidak_sehat',
+        'beranda.status_tidak_sehat_desc',
+        AppPalette.aqiUnhealthy,
+        200,
+      );
+    }
+    return const _StatusAqi(
+      'beranda.status_berbahaya',
+      'beranda.status_berbahaya_desc',
+      AppPalette.aqiHazardous,
+      null,
     );
   }
 }
@@ -339,14 +463,9 @@ class _ObservationBanner extends StatelessWidget {
     final kamus = L10n.of(context);
     final tones = AppTones.of(context);
     final accent = tones.waspada;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: tones.card,
-        borderRadius: BorderRadius.circular(AppLayout.radiusKartu),
-        boxShadow: tones.softShadow(),
-      ),
+    return JbCard(
+      color: accent.withValues(alpha: 0.08),
+      border: Border.all(color: accent.withValues(alpha: 0.20)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -371,8 +490,7 @@ class _ObservationBanner extends StatelessWidget {
                   kamus.t('beranda.observasi_pesan', {
                     'menit': '${AppConfig.CYCLE_INTERVAL_MINUTES}',
                   }),
-                  style: AppTeks.isi(tones)
-                      .copyWith(fontSize: 14, color: tones.inkSoft),
+                  style: AppTeks.isiSoft(tones).copyWith(fontSize: 13),
                 ),
               ],
             ),
@@ -392,14 +510,9 @@ class _ErrorBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
     final accent = tones.level(AlertLevels.bahaya);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: tones.card,
-        borderRadius: BorderRadius.circular(AppLayout.radiusKartu),
-        boxShadow: tones.softShadow(),
-      ),
+    return JbCard(
+      color: accent.withValues(alpha: 0.07),
+      border: Border.all(color: accent.withValues(alpha: 0.20)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -414,7 +527,7 @@ class _ErrorBanner extends StatelessWidget {
           Expanded(
             child: Text(
               pesan,
-              style: AppTeks.isi(tones).copyWith(fontSize: 14, color: accent),
+              style: AppTeks.isi(tones).copyWith(fontSize: 13, color: accent),
             ),
           ),
         ],
@@ -423,414 +536,470 @@ class _ErrorBanner extends StatelessWidget {
   }
 }
 
-// ──────────────────────────────────────────────────────────────── Status hero
-class _StatusHero extends StatelessWidget {
-  const _StatusHero({
-    required this.outcome,
-    required this.sumberData,
-    required this.sedangCek,
-    this.onCek,
-    this.onCekPaksa,
+/// Status satu nilai AQI: kunci label, kunci deskripsi, warna, dan ambang
+/// berikutnya (null untuk pita terakhir).
+class _StatusAqi {
+  const _StatusAqi(this.labelKey, this.descKey, this.color, this.next);
+
+  final String labelKey;
+  final String descKey;
+  final Color color;
+  final int? next;
+}
+
+// ────────────────────────────────────────────────────────── Kartu hero AQI
+class _HeroAqi extends StatelessWidget {
+  const _HeroAqi({
+    required this.aqi,
+    required this.status,
+    required this.kamus,
+    required this.tones,
+    this.diperbarui,
   });
 
-  final CycleOutcome? outcome;
-  final String sumberData;
-  final bool sedangCek;
-  final VoidCallback? onCek;
-  final VoidCallback? onCekPaksa;
+  final double? aqi;
+  final _StatusAqi status;
+  final L10n kamus;
+  final AppTones tones;
+  final DateTime? diperbarui;
+
+  String _waktu() {
+    if (diperbarui == null) return kamus.t('umum.belum_ada');
+    final selisih = DateTime.now().difference(diperbarui!);
+    if (selisih.inMinutes < 1) return kamus.t('beranda.aqi_baru');
+    return kamus.t('beranda.aqi_menit_lalu', {'n': '${selisih.inMinutes}'});
+  }
 
   @override
   Widget build(BuildContext context) {
-    final kamus = L10n.of(context);
-    final tones = AppTones.of(context);
-    final level = outcome?.levelTertinggi ?? AlertLevels.tidakDievaluasi;
-    final hasil = outcome?.results ?? const <ConditionResult>[];
-    final skorTertinggi = hasil.isEmpty
-        ? 0
-        : hasil.map((r) => r.skor).reduce((a, b) => a > b ? a : b);
-    final tinta = AppTones.onGradien;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppLayout.radiusKartu),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: tones.gradasiLevel(level),
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x1F000000),
-            blurRadius: 4,
-            offset: Offset(4, 8),
-          ),
-        ],
-      ),
+    final nilai = aqi?.round();
+    final menuju = status.next == null || aqi == null
+        ? null
+        : (status.next! - aqi!).clamp(0, 999).round();
+    return JbCard(
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              KotakIkon(
-                ikon: LevelStyle.iconOf(level),
-                warna: tinta,
-                ukuran: 50,
-                ukuranIkon: 28,
-                lingkaran: true,
-              ),
-              const SizedBox(width: 14),
+              Icon(Icons.air_rounded, size: 17, color: tones.aksenDeep),
+              const SizedBox(width: 7),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      kamus.t('beranda.kondisi_saat_ini'),
-                      style: AppTeks.labelSeksi(tones)
-                          .copyWith(color: tinta.withValues(alpha: 0.75)),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      outcome == null
-                          ? kamus.t('beranda.belum_diperiksa')
-                          : kamus.t('beranda.level_tertinggi', {
-                              'level': level,
-                            }),
-                      style: AppTeks.judulHero(tones),
-                    ),
-                  ],
+                child: Text(
+                  kamus.t('beranda.aqi_judul'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTeks.judulBaris(tones).copyWith(fontSize: 14.5),
                 ),
               ),
-              if (outcome != null)
-                _InfoSkorButton(
-                  skor: skorTertinggi,
-                  level: level,
-                  tinta: tinta,
+              const SizedBox(width: 8),
+              Icon(Icons.schedule_rounded, size: 13, color: tones.inkSoft),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  kamus.t('beranda.aqi_diperbarui', {'waktu': _waktu()}),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTeks.labelSeksi(tones).copyWith(fontSize: 11),
                 ),
+              ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            LevelStyle.deskripsi(level, kamus),
-            style: AppTeks.isi(tones)
-                .copyWith(color: tinta.withValues(alpha: 0.85), fontSize: 14.5),
-          ),
-          if (outcome != null) ...[
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: BilasProgres(pct: skorTertinggi / 100, warna: tinta),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  '$skorTertinggi/100',
-                  style: AppTeks.judulBaris(tones).copyWith(color: tinta),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _RingkasanKondisi(results: hasil),
-          ],
-          const SizedBox(height: 14),
-          // sumber data chip
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.40),
-              borderRadius: BorderRadius.circular(AppLayout.radiusPil),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.cloud_done_outlined,
-                  size: 15,
-                  color: tinta.withValues(alpha: 0.85),
-                ),
-                const SizedBox(width: 7),
-                Flexible(
-                  child: Text(
-                    kamus.t('beranda.sumber_otomatis', {
-                      'sumber': kamus.sumberData(sumberData),
-                    }),
-                    style: AppTeks.labelSeksi(tones).copyWith(
-                      color: tinta.withValues(alpha: 0.85),
-                      fontSize: 11.5,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Expanded(
-                child: SizedBox(
-                  height: 46,
-                  child: FilledButton.icon(
-                    onPressed: onCek,
-                    icon: sedangCek
-                        ? const SizedBox(
-                            height: 18,
-                            width: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.monitor_heart_outlined, size: 20),
-                    label: Text(
-                      sedangCek
-                          ? kamus.t('beranda.tombol_cek_sibuk')
-                          : kamus.t('beranda.tombol_cek'),
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontFamily: 'Lato',
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: tinta.withValues(alpha: 0.92),
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
+              Text(
+                nilai?.toString() ?? '--',
+                style: AppTeks.displayAngka(tones),
+              ),
+              const SizedBox(width: 7),
+              Padding(
+                padding: const EdgeInsets.only(top: 18),
+                child: Text(
+                  kamus.t('beranda.aqi_unit'),
+                  style: AppTeks.labelSeksi(tones)
+                      .copyWith(fontSize: 11, fontWeight: FontWeight.w600),
                 ),
               ),
-              const SizedBox(width: 10),
-              Tooltip(
-                message: kamus.t('beranda.tooltip_sinkron'),
-                child: SizedBox(
-                  height: 46,
-                  width: 46,
-                  child: IconButton(
-                    onPressed: sedangCek ? null : onCekPaksa,
-                    icon: const Icon(Icons.sync_rounded, size: 22),
-                    color: tinta,
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.white.withValues(alpha: 0.40),
-                      disabledBackgroundColor: Colors.white.withValues(
-                        alpha: 0.18,
+              const Spacer(),
+              Flexible(
+                child: JbStatusPill(
+                  label: nilai == null
+                      ? kamus.t(status.descKey)
+                      : '${kamus.t(status.labelKey)} • ${kamus.t(status.descKey)}',
+                  color: status.color,
+                  icon: nilai == null
+                      ? Icons.help_outline_rounded
+                      : Icons.eco_rounded,
+                  compact: true,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          JbAqiBar(aqi: aqi ?? 0, tampilPenanda: aqi != null),
+          const SizedBox(height: 9),
+          Row(
+            children: [
+              Text(
+                '0–50',
+                style: AppTeks.labelSeksi(tones).copyWith(fontSize: 11),
+              ),
+              Expanded(
+                child: Text(
+                  menuju == null
+                      ? ''
+                      : kamus.t('beranda.aqi_menuju', {
+                          'n': '$menuju',
+                          'status': kamus.t(
+                            status.next == 50
+                                ? 'beranda.status_sedang'
+                                : (status.next == 100
+                                      ? 'beranda.status_sensitif'
+                                      : (status.next == 150
+                                            ? 'beranda.status_tidak_sehat'
+                                            : 'beranda.status_berbahaya')),
+                          ),
+                        }),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTeks.labelSeksi(tones).copyWith(fontSize: 11),
+                ),
+              ),
+              Text(
+                kamus.t('beranda.aqi_skala_atas'),
+                style: AppTeks.labelSeksi(tones).copyWith(fontSize: 11),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────── Banner saran tindakan
+class _AlertBanner extends StatelessWidget {
+  const _AlertBanner({
+    required this.hasil,
+    required this.kamus,
+    required this.tones,
+    required this.onTap,
+  });
+
+  final ConditionResult hasil;
+  final L10n kamus;
+  final AppTones tones;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final warna = tones.level(hasil.level);
+    final alasan = hasil.alasanTeks(kamus);
+    return JbCard(
+      color: tones.waspada.withValues(alpha: 0.09),
+      border: Border.all(color: tones.waspada.withValues(alpha: 0.22)),
+      onTap: onTap,
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          KotakIkon(
+            ikon: LevelStyle.iconOf(hasil.level),
+            warna: warna,
+            ukuran: 44,
+            ukuranIkon: 22,
+            tertutup: true,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                JbStatusPill(
+                  label: '${hasil.level} • ${hasil.kondisi}',
+                  color: warna,
+                  compact: true,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  alasan.isEmpty
+                      ? kamus.t('beranda.alert_banner')
+                      : alasan.first,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTeks.isi(tones).copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Icon(Icons.chevron_right_rounded, size: 20, color: tones.inkSoft),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────── Tiga kartu statistik mini
+class _MiniStats extends StatelessWidget {
+  const _MiniStats({
+    required this.udara,
+    required this.cuaca,
+    required this.kamus,
+    required this.tones,
+  });
+
+  final AirQuality? udara;
+  final WeatherForecast? cuaca;
+  final L10n kamus;
+  final AppTones tones;
+
+  @override
+  Widget build(BuildContext context) {
+    final pm25 = udara?.pm25;
+    final pm10 = udara?.pm10;
+    final suhu = cuaca?.temperature;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: JbMiniStat(
+            label: 'PM2.5',
+            value: pm25 == null ? '--' : _angka(pm25),
+            unit: 'µg/m³',
+            color: pm25 == null
+                ? tones.netral
+                : (pm25 <= 12
+                      ? AppPalette.aman
+                      : (pm25 <= 35 ? AppPalette.aksenDeep : tones.waspada)),
+            status: pm25 == null
+                ? kamus.t('umum.belum_ada')
+                : (pm25 <= 12
+                      ? kamus.t('beranda.mini_optimal')
+                      : (pm25 <= 35
+                            ? kamus.t('beranda.mini_normal')
+                            : kamus.t('beranda.mini_tinggi'))),
+            progress: pm25 == null ? 0.02 : (pm25 / 60).clamp(0.02, 1),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: JbMiniStat(
+            label: 'PM10',
+            value: pm10 == null ? '--' : _angka(pm10),
+            unit: 'µg/m³',
+            color: pm10 == null
+                ? tones.netral
+                : (pm10 <= 54
+                      ? AppPalette.aman
+                      : (pm10 <= 154 ? AppPalette.aksenDeep : tones.waspada)),
+            status: pm10 == null
+                ? kamus.t('umum.belum_ada')
+                : (pm10 <= 54
+                      ? kamus.t('beranda.mini_optimal')
+                      : (pm10 <= 154
+                            ? kamus.t('beranda.mini_normal')
+                            : kamus.t('beranda.mini_tinggi'))),
+            progress: pm10 == null ? 0.02 : (pm10 / 200).clamp(0.02, 1),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: JbMiniStat(
+            label: kamus.t('beranda.mini_suhu'),
+            value: suhu == null ? '--' : _angka(suhu),
+            unit: '°C',
+            color: suhu == null
+                ? tones.netral
+                : (suhu >= 20 && suhu <= 27
+                      ? AppPalette.aman
+                      : (suhu >= 16 && suhu <= 32
+                            ? AppPalette.aksenDeep
+                            : tones.waspada)),
+            status: suhu == null
+                ? kamus.t('umum.belum_ada')
+                : (suhu >= 20 && suhu <= 27
+                      ? kamus.t('beranda.mini_optimal')
+                      : (suhu < 20
+                            ? kamus.t('beranda.mini_rendah')
+                            : (suhu <= 32
+                                  ? kamus.t('beranda.mini_normal')
+                                  : kamus.t('beranda.mini_tinggi')))),
+            progress: suhu == null ? 0.02 : (suhu / 45).clamp(0.02, 1),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static String _angka(double nilai) => nilai >= 100
+      ? nilai.round().toString()
+      : nilai.toStringAsFixed(nilai.truncateToDouble() == nilai ? 0 : 1);
+}
+
+// ────────────────────────────────────────────────── Kartu kebiasaan napas
+class _KartuKebiasaan extends StatelessWidget {
+  const _KartuKebiasaan({
+    required this.cuaca,
+    required this.status,
+    required this.kamus,
+    required this.tones,
+    required this.onNapas,
+    required this.onSinkron,
+  });
+
+  final WeatherForecast? cuaca;
+  final _StatusAqi status;
+  final L10n kamus;
+  final AppTones tones;
+  final VoidCallback onNapas;
+  final VoidCallback? onSinkron;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 212,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
+        children: [
+          SizedBox(
+            width: 252,
+            child: JbCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      JbStatusPill(
+                        label: kamus.t('beranda.napas_durasi'),
+                        color: tones.aksenDeep,
+                        compact: true,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          AppLayout.radiusPil,
+                      const Spacer(),
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: tones.aksenSoft,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.self_improvement_rounded,
+                          size: 21,
+                          color: tones.aksenDeep,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    kamus.t('beranda.napas_judul'),
+                    style: AppTeks.judulKartu(tones).copyWith(fontSize: 17),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    kamus.t('beranda.napas_sub'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTeks.isiSoft(tones).copyWith(fontSize: 12),
+                  ),
+                  const Spacer(),
+                  SizedBox(
+                    height: 42,
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: onNapas,
+                      icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                      label: Text(kamus.t('beranda.napas_cta')),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: tones.aksenDeep,
+                        textStyle: const TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ───────────────────────────────────────── Tombol bulat info skor di hero card
-class _InfoSkorButton extends StatelessWidget {
-  const _InfoSkorButton({
-    required this.skor,
-    required this.level,
-    required this.tinta,
-  });
-
-  final int skor;
-  final String level;
-  final Color tinta;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => _tampilkanInfoSkor(context, skor, level),
-      customBorder: const CircleBorder(),
-      child: Container(
-        width: 44,
-        height: 44,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.40),
-          shape: BoxShape.circle,
-        ),
-        child: Text(
-          '?',
-          style: TextStyle(
-            fontFamily: 'Lato',
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: tinta,
-          ),
-        ),
-      ),
-    );
-  }
-
-  static void _tampilkanInfoSkor(BuildContext context, int skor, String level) {
-    final kamus = L10n.of(context);
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        icon: Icon(
-          LevelStyle.iconOf(level),
-          size: 36,
-          color: AppTones.of(ctx).level(level),
-        ),
-        title: Text(kamus.t('beranda.info_skor_judul')),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(kamus.t('beranda.info_skor_isi')),
-              const SizedBox(height: 12),
-              _levelBaris('AMAN', AlertLevels.aman, ctx),
-              _levelBaris('WASPADA', AlertLevels.waspada, ctx),
-              _levelBaris('PERHATIAN', AlertLevels.perhatian, ctx),
-              _levelBaris('BAHAYA', AlertLevels.bahaya, ctx),
-              const SizedBox(height: 12),
-              Text(
-                kamus.t('beranda.info_skor_nol'),
-                style: const TextStyle(fontSize: 13),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(kamus.t('umum.tutup')),
-          ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _levelBaris(String label, String level, BuildContext ctx) {
-    final color = AppTones.of(ctx).level(level);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        children: [
-          Icon(LevelStyle.iconOf(level), size: 18, color: color),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color,
-              fontSize: 13,
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-// ────────────────────────────────────────────────── Ringkasan tiga kondisi mini
-class _RingkasanKondisi extends StatelessWidget {
-  const _RingkasanKondisi({required this.results});
-  final List<ConditionResult> results;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        for (var i = 0; i < results.length; i++) ...[
-          if (i > 0) const SizedBox(width: 8),
-          Expanded(child: _KondisiRingkas(hasil: results[i])),
-        ],
-      ],
-    );
-  }
-}
-
-class _KondisiRingkas extends StatelessWidget {
-  const _KondisiRingkas({required this.hasil});
-  final ConditionResult hasil;
-
-  @override
-  Widget build(BuildContext context) {
-    final kamus = L10n.of(context);
-    final tones = AppTones.of(context);
-    final accent = tones.level(hasil.level);
-    final tinta = AppTones.onGradien;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.48),
-        borderRadius: BorderRadius.circular(AppLayout.radiusGrup),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(KondisiStyle.iconOf(hasil.kondisi), size: 14, color: accent),
-              const SizedBox(width: 5),
-              Expanded(
-                child: Text(
-                  KondisiStyle.shortLabel(hasil.kondisi, kamus),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: 'Lato',
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: tinta,
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 252,
+            child: JbCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      JbStatusPill(
+                        label: kamus.t('beranda.sinkron'),
+                        color: tones.aksenDeep,
+                        compact: true,
+                      ),
+                      const Spacer(),
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: tones.panel,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.wb_sunny_outlined,
+                          size: 20,
+                          color: tones.aksenDeep,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 5),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${hasil.skor}',
-                style: TextStyle(
-                  fontFamily: 'Lato',
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  height: 1,
-                  color: tinta,
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              const SizedBox(width: 2),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 1),
-                child: Text(
-                  kamus.t('beranda.dari_seratus'),
-                  style: TextStyle(
-                    fontFamily: 'Lato',
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w600,
-                    color: tinta.withValues(alpha: 0.65),
+                  const SizedBox(height: 12),
+                  Text(
+                    kamus.t('beranda.udara_sekarang_judul'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTeks.judulKartu(tones).copyWith(fontSize: 16),
                   ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.20),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              hasil.level,
-              style: TextStyle(
-                fontFamily: 'Lato',
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-                color: accent,
+                  const SizedBox(height: 3),
+                  Text(
+                    cuaca == null
+                        ? kamus.t('umum.belum_ada')
+                        : '${kamus.t('beranda.udara_sekarang_sub', {'status': kamus.t(status.labelKey)})} · ${cuaca!.temperature.toStringAsFixed(0)}°C',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTeks.isiSoft(tones).copyWith(fontSize: 12),
+                  ),
+                  const Spacer(),
+                  SizedBox(
+                    height: 42,
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: onSinkron,
+                      icon: const Icon(Icons.cloud_sync_outlined, size: 17),
+                      label: Text(kamus.t('beranda.sinkron')),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: tones.aksenDeep,
+                        side: BorderSide(color: tones.line),
+                        textStyle: const TextStyle(
+                          fontFamily: 'Plus Jakarta Sans',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -1338,7 +1507,7 @@ class _SinyalChip extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontFamily: 'Lato',
+              fontFamily: 'Plus Jakarta Sans',
               fontSize: 11.5,
               fontWeight: FontWeight.bold,
               color: color,
@@ -1350,7 +1519,11 @@ class _SinyalChip extends StatelessWidget {
             const SizedBox(width: 3),
             Text(
               '$jumlah',
-              style: TextStyle(fontFamily: 'Lato', fontSize: 10, color: color),
+              style: TextStyle(
+                fontFamily: 'Plus Jakarta Sans',
+                fontSize: 10,
+                color: color,
+              ),
             ),
           ],
         ],
@@ -1725,7 +1898,7 @@ class _TileSensor extends StatelessWidget {
                               TextSpan(
                                 text: data.value!,
                                 style: TextStyle(
-                                  fontFamily: 'Lato',
+                                  fontFamily: 'Plus Jakarta Sans',
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: tones.ink,
@@ -1738,7 +1911,7 @@ class _TileSensor extends StatelessWidget {
                               TextSpan(
                                 text: ' ${data.unit}',
                                 style: TextStyle(
-                                  fontFamily: 'Lato',
+                                  fontFamily: 'Plus Jakarta Sans',
                                   fontSize: 10,
                                   color: tones.inkSoft,
                                 ),
@@ -1988,6 +2161,449 @@ class _KalibrasiKartu extends StatelessWidget {
               .copyWith(fontSize: 13, color: tones.inkSoft),
         ),
       ],
+    );
+  }
+}
+
+// ────────────────────────────────────────── Ringkasan kondisi (kartu tunggal)
+/// Beranda hanya menampilkan level dan skor tiap kondisi. Alasan skor dan
+/// saran tindakan ada di lembar detail yang dibuka dari kartu ini.
+class _KondisiRingkas extends StatelessWidget {
+  const _KondisiRingkas({
+    required this.hasil,
+    required this.outcome,
+    required this.kamus,
+    required this.tones,
+    this.onTap,
+  });
+
+  final List<ConditionResult> hasil;
+  final CycleOutcome? outcome;
+  final L10n kamus;
+  final AppTones tones;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return JbCard(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              KotakIkon(
+                ikon: Icons.monitor_heart_outlined,
+                warna: tones.aksenDeep,
+                ukuran: 40,
+                ukuranIkon: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      kamus.t('beranda.kondisi_saat_ini'),
+                      style: AppTeks.judulKartu(tones).copyWith(fontSize: 17),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      kamus.t('beranda.kondisi_ringkas_sub'),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTeks.isiSoft(tones).copyWith(fontSize: 12.5),
+                    ),
+                  ],
+                ),
+              ),
+              if (onTap != null)
+                Icon(Icons.chevron_right_rounded, color: tones.inkSoft),
+            ],
+          ),
+          const SizedBox(height: 14),
+          if (outcome == null) ...[
+            Row(
+              children: [
+                Icon(
+                  Icons.hourglass_empty_rounded,
+                  size: 18,
+                  color: tones.inkSoft,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    kamus.t('beranda.kosong_judul'),
+                    style: AppTeks.isi(tones)
+                        .copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              kamus.t('beranda.belum_diperiksa'),
+              style: AppTeks.labelSeksi(tones),
+            ),
+          ] else ...[
+            Row(
+              children: [
+                Icon(
+                  Icons.flag_rounded,
+                  size: 15,
+                  color: tones.level(outcome!.levelTertinggi),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    kamus.t('beranda.level_tertinggi', {
+                      'level': outcome!.levelTertinggi,
+                    }),
+                    style: AppTeks.labelSeksi(tones).copyWith(
+                      color: tones.level(outcome!.levelTertinggi),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            for (var i = 0; i < hasil.length; i++) ...[
+              if (i > 0) Divider(height: 18, color: tones.line),
+              _BarisKondisi(hasil: hasil[i]),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _BarisKondisi extends StatelessWidget {
+  const _BarisKondisi({required this.hasil});
+
+  final ConditionResult hasil;
+
+  @override
+  Widget build(BuildContext context) {
+    final tones = AppTones.of(context);
+    final accent = tones.level(hasil.level);
+    return Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.14),
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Icon(
+            KondisiStyle.iconOf(hasil.kondisi),
+            size: 18,
+            color: accent,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                hasil.kondisi,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTeks.judulBaris(tones).copyWith(fontSize: 14.5),
+              ),
+              const SizedBox(height: 3),
+              LevelChip(level: hasil.level),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        ScoreGauge(skor: hasil.skor, level: hasil.level, size: 42),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────── Ringkasan pemantauan (kartu)
+class _PemantauanKartu extends StatelessWidget {
+  const _PemantauanKartu({
+    required this.outcome,
+    required this.kamus,
+    required this.tones,
+    this.onTap,
+  });
+
+  final CycleOutcome? outcome;
+  final L10n kamus;
+  final AppTones tones;
+  final VoidCallback? onTap;
+
+  static const List<String> _sinyal = [
+    'heart_rate',
+    'hrv',
+    'spo2',
+    'resp_rate',
+    'sleep',
+    'exercise',
+    'steps',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final snapshot = outcome?.snapshot;
+    final ok = snapshot == null
+        ? 0
+        : _sinyal.where((s) => snapshot.status(s) == 'ok').length;
+    final keyakinan = snapshot?.confidence ?? '—';
+    final ambang = outcome?.ambang.tierAmbangSuhu.name ?? 'literatur';
+    return JbCard(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              KotakIkon(
+                ikon: Icons.sensors_rounded,
+                warna: tones.aksenDeep,
+                ukuran: 40,
+                ukuranIkon: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      kamus.t('beranda.pemantauan_judul'),
+                      style: AppTeks.judulKartu(tones).copyWith(fontSize: 17),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      kamus.t('beranda.pemantauan_sub'),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTeks.isiSoft(tones).copyWith(fontSize: 12.5),
+                    ),
+                  ],
+                ),
+              ),
+              if (onTap != null)
+                Icon(Icons.chevron_right_rounded, color: tones.inkSoft),
+            ],
+          ),
+          const SizedBox(height: 14),
+          if (snapshot == null)
+            Text(
+              kamus.t('beranda.pemantauan_kosong'),
+              style: AppTeks.isiSoft(tones).copyWith(fontSize: 13.5),
+            )
+          else ...[
+            Row(
+              children: [
+                Expanded(
+                  child: _PilRingkas(
+                    ikon: Icons.check_circle_outline_rounded,
+                    teks: kamus.t('beranda.sinyal_ringkas', {
+                      'ok': '$ok',
+                      'total': '${_sinyal.length}',
+                    }),
+                    warna: tones.aman,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _PilRingkas(
+                    ikon: Icons.verified_outlined,
+                    teks: kamus.t('beranda.keyakinan_ringkas', {
+                      'level': keyakinan,
+                    }),
+                    warna: keyakinan == 'HIGH' ? tones.aman : tones.waspada,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _PilRingkas(
+              ikon: Icons.tune_rounded,
+              teks: kamus.t('beranda.ambang_ringkas_2', {
+                'tier': kamus.t('tier.$ambang'),
+              }),
+              warna: tones.tier(ambang),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PilRingkas extends StatelessWidget {
+  const _PilRingkas({
+    required this.ikon,
+    required this.teks,
+    required this.warna,
+  });
+
+  final IconData ikon;
+  final String teks;
+  final Color warna;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: warna.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(AppLayout.radiusPil),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(ikon, size: 14, color: warna),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              teks,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: 'Plus Jakarta Sans',
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: warna,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────── Catatan sumber di lembar detail
+class _SumberCatatan extends StatelessWidget {
+  const _SumberCatatan({required this.sumber, required this.kamus});
+
+  final String sumber;
+  final L10n kamus;
+
+  @override
+  Widget build(BuildContext context) {
+    final tones = AppTones.of(context);
+    return JbCard(
+      color: tones.panel,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.cloud_done_outlined, size: 18, color: tones.aksenDeep),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  kamus.t('beranda.sumber_otomatis', {
+                    'sumber': kamus.sumberData(sumber),
+                  }),
+                  style: AppTeks.judulBaris(tones).copyWith(fontSize: 13.5),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            kamus.t('beranda.tombol_jelas', {
+              'menit': '${AppConfig.CYCLE_INTERVAL_MINUTES}',
+            }),
+            style: AppTeks.isiSoft(tones).copyWith(fontSize: 12.5),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            kamus.t('beranda.sumber_ajakan'),
+            style: AppTeks.isiSoft(tones).copyWith(fontSize: 12.5),
+          ),
+          const SizedBox(height: 4),
+          TextButton.icon(
+            onPressed: () => Navigator.pushNamed(context, '/sources'),
+            icon: const Icon(Icons.menu_book_rounded, size: 16),
+            label: Text(kamus.t('profil.resource_judul')),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ───────────────────────────────────────────── Lembar detail gaya Stitch
+class _LembarDetail extends StatelessWidget {
+  const _LembarDetail({
+    required this.judul,
+    required this.sub,
+    required this.anak,
+  });
+
+  final String judul;
+  final String sub;
+  final Widget anak;
+
+  @override
+  Widget build(BuildContext context) {
+    final tones = AppTones.of(context);
+    final kamus = L10n.of(context);
+    return Container(
+      height: MediaQuery.sizeOf(context).height * 0.92,
+      decoration: BoxDecoration(
+        color: tones.canvas,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 10),
+          Container(
+            width: 42,
+            height: 4,
+            decoration: BoxDecoration(
+              color: tones.line,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 12, 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(judul, style: AppTeks.judulHalaman(tones)),
+                      const SizedBox(height: 4),
+                      Text(
+                        sub,
+                        style: AppTeks.isiSoft(tones).copyWith(fontSize: 13.5),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                JbIconButton(
+                  icon: Icons.close_rounded,
+                  tooltip: kamus.t('umum.tutup'),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+              children: [anak],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

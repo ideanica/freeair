@@ -6,6 +6,7 @@ import '../models/condition_result.dart';
 import '../models/nilai_fisiologis.dart';
 import '../services/database_helpers.dart';
 import 'level_style.dart';
+import '../widgets/jb.dart';
 
 /// Riwayat hasil cek, dikelompokkan per tanggal.
 class HistoryScreen extends StatefulWidget {
@@ -46,6 +47,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final kamus = L10n.of(context);
+    final tones = AppTones.of(context);
     final bisaKembali = Navigator.canPop(context);
 
     // Kepala halaman ada di dalam body (bukan AppBar), persis template, dan
@@ -54,17 +56,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
       padding: const EdgeInsets.only(bottom: 14),
       child: Row(
         children: [
-          if (bisaKembali)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: _TombolKembali(onTap: () => Navigator.pop(context)),
+          if (bisaKembali) ...[
+            JbIconButton(
+              icon: Icons.arrow_back_ios_new_rounded,
+              tooltip: kamus.t('umum.tutup'),
+              onTap: () => Navigator.pop(context),
             ),
+            const SizedBox(width: 10),
+          ],
           Expanded(
-            child: KepalaHalaman(
-              judul: kamus.t('riwayat.judul'),
-              ikon: Icons.refresh_rounded,
-              onKetukIkon: _uatUlang,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  kamus.t('riwayat.judul'),
+                  style: AppTeks.judulHalaman(tones),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFF9F43),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
             ),
+          ),
+          JbIconButton(
+            icon: Icons.refresh_rounded,
+            tooltip: kamus.t('statistik.muat_ulang'),
+            onTap: _uatUlang,
           ),
         ],
       ),
@@ -84,7 +107,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 return Stack(
                   children: [
                     ListView(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
                       children: [kepala()],
                     ),
                     const Center(child: CircularProgressIndicator()),
@@ -95,7 +118,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 return ListView(
                   padding: EdgeInsets.fromLTRB(
                     20,
-                    8,
+                    24,
                     20,
                     AppLayout.bawahKonten(context),
                   ),
@@ -114,7 +137,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 return ListView(
                   padding: EdgeInsets.fromLTRB(
                     20,
-                    8,
+                    24,
                     20,
                     AppLayout.bawahKonten(context),
                   ),
@@ -151,6 +174,82 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         kepala(),
+                        // Baris utilitas gaya Alerts: jumlah pembaruan + tandai
+                        // semua sudah dibaca.
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: tones.aksen,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  '${rows.length} pembaruan baru',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTeks.judulBaris(tones).copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                              TextButton.icon(
+                                onPressed: _uatUlang,
+                                icon: const Icon(
+                                  Icons.done_all_rounded,
+                                  size: 16,
+                                ),
+                                label: const Text(
+                                  'Tandai dibaca',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: tones.aksenDeep,
+                                  textStyle: const TextStyle(
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Filter pills gaya Alerts.
+                        SizedBox(
+                          height: 46,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: [
+                              _FilterPill(
+                                label: 'Semua',
+                                jumlah: rows.length,
+                                aktif: true,
+                              ),
+                              _FilterPill(
+                                label: 'Kesehatan',
+                                jumlah: rows
+                                    .where(
+                                      (r) =>
+                                          AlertLevels.levelButuhAlert(r.level),
+                                    )
+                                    .length,
+                              ),
+                              _FilterPill(label: 'Udara', jumlah: rows.length),
+                              _FilterPill(label: 'Pengingat', jumlah: 0),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         _RingkasanRiwayat(rows: rows),
                       ],
                     );
@@ -159,27 +258,44 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      LabelSeksi(
-                        margin: const EdgeInsets.only(top: 14, bottom: 10),
-                        teks: entri.key.toUpperCase(),
-                        trailing: InfoChip(
-                          teks: kamus.t('umum.cek', {
-                            'jumlah': '${entri.value.length}',
-                          }),
-                        ),
-                      ),
-                      GrupBaris(
-                        children: [
-                          for (final record in entri.value)
-                            _RiwayatBaris(
-                              record: record,
-                              onTap: () => showDialog<void>(
-                                context: context,
-                                builder: (_) => _DetailDialog(record: record),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 14, bottom: 10),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: tones.aksen,
+                                shape: BoxShape.circle,
                               ),
                             ),
-                        ],
+                            const SizedBox(width: 8),
+                            Text(
+                              entri.key.toUpperCase(),
+                              style: AppTeks.labelSeksi(tones),
+                            ),
+                            const Spacer(),
+                            InfoChip(
+                              teks: kamus.t('umum.cek', {
+                                'jumlah': '${entri.value.length}',
+                              }),
+                            ),
+                          ],
+                        ),
                       ),
+                      for (var i = 0; i < entri.value.length; i++) ...[
+                        _RiwayatBaris(
+                          record: entri.value[i],
+                          onTap: () => showDialog<void>(
+                            context: context,
+                            builder: (_) =>
+                                _DetailDialog(record: entri.value[i]),
+                          ),
+                        ),
+                        if (i < entri.value.length - 1)
+                          const SizedBox(height: 12),
+                      ],
                     ],
                   );
                 },
@@ -263,12 +379,6 @@ class _RingkasanRiwayat extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        Text(
-          kamus.t('riwayat.penjelasan_simpan'),
-          style: AppTeks.isi(tones)
-              .copyWith(fontSize: 13.5, color: tones.inkSoft),
-        ),
       ],
     );
   }
@@ -283,61 +393,134 @@ class _RiwayatBaris extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
+    final kamus = L10n.of(context);
     final accent = tones.level(record.level);
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+    final butuhAlert = AlertLevels.levelButuhAlert(record.level);
+    return JbCard(
+      padding: EdgeInsets.zero,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppLayout.radiusKartu),
+        child: Stack(
+          clipBehavior: Clip.antiAlias,
           children: [
-            KotakIkon(
-              ikon: KondisiStyle.iconOf(record.kondisi),
-              warna: accent,
-              ukuran: 44,
-              ukuranIkon: 22,
+            Positioned(
+              left: 0,
+              top: 2,
+              bottom: 2,
+              child: Container(
+                width: 5,
+                decoration: BoxDecoration(
+                  color: accent,
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(4),
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    record.kondisi,
-                    style: AppTeks.judulBaris(tones)
-                        .copyWith(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${_jam(record.timestamp)} • ${record.level}',
-                    style: AppTeks.labelSeksi(tones)
-                        .copyWith(color: accent, fontSize: 12.5),
-                  ),
-                  if (record.intervensi.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        record.intervensi,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTeks.isi(tones)
-                            .copyWith(fontSize: 13.5, color: tones.inkSoft),
-                      ),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: accent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
+                    child: Icon(
+                      KondisiStyle.iconOf(record.kondisi),
+                      size: 22,
+                      color: accent,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: accent.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(
+                                    AppLayout.radiusPil,
+                                  ),
+                                ),
+                                child: Text(
+                                  '${record.level} • ${record.kondisi}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: accent,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          record.kondisi,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTeks.judulBaris(tones)
+                              .copyWith(fontSize: 15),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          record.intervensi.isNotEmpty
+                              ? record.intervensi
+                              : kamus.t('beranda.alert_banner'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTeks.isiSoft(tones)
+                              .copyWith(fontSize: 12.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        _jam(record.timestamp),
+                        style: AppTeks.labelSeksi(tones).copyWith(fontSize: 11),
+                      ),
+                      if (butuhAlert) ...[
+                        const SizedBox(height: 6),
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: accent,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 6),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        size: 18,
+                        color: tones.inkSoft,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            const SizedBox(width: 10),
-            Text(
-              '${record.skor}',
-              style: AppTeks.angka(tones).copyWith(
-                color: accent,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(Icons.chevron_right_rounded, size: 30, color: tones.inkSoft),
           ],
         ),
       ),
@@ -347,6 +530,72 @@ class _RiwayatBaris extends StatelessWidget {
   static String _jam(DateTime waktu) =>
       '${waktu.hour.toString().padLeft(2, '0')}:'
       '${waktu.minute.toString().padLeft(2, '0')}';
+}
+
+class _FilterPill extends StatelessWidget {
+  const _FilterPill({
+    required this.label,
+    required this.jumlah,
+    this.aktif = false,
+  });
+
+  final String label;
+  final int jumlah;
+  final bool aktif;
+
+  @override
+  Widget build(BuildContext context) {
+    final tones = AppTones.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          gradient: aktif
+              ? LinearGradient(colors: [tones.aksen, tones.aksenDeep])
+              : null,
+          color: aktif ? null : tones.card,
+          borderRadius: BorderRadius.circular(AppLayout.radiusPil),
+          boxShadow: aktif ? tones.softShadow() : null,
+          border: aktif ? null : Border.all(color: tones.line),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Plus Jakarta Sans',
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: aktif ? Colors.white : tones.inkSoft,
+              ),
+            ),
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              decoration: BoxDecoration(
+                color: aktif
+                    ? Colors.white.withValues(alpha: 0.25)
+                    : tones.panel,
+                borderRadius: BorderRadius.circular(AppLayout.radiusPil),
+              ),
+              child: Text(
+                '$jumlah',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w700,
+                  color: aktif ? Colors.white : tones.inkSoft,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _DetailDialog extends StatelessWidget {
@@ -546,35 +795,5 @@ class _DetailDialog extends StatelessWidget {
     return bagian.isEmpty
         ? kamus.t('riwayat.tidak_ada_input')
         : bagian.join(' • ');
-  }
-}
-
-/// Tombol kembali kecil untuk layar yang dibuka via pushNamed.
-class _TombolKembali extends StatelessWidget {
-  const _TombolKembali({required this.onTap});
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final tones = AppTones.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        width: 36,
-        height: 36,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: tones.card,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: tones.softShadow(),
-        ),
-        child: Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 18,
-          color: tones.ink,
-        ),
-      ),
-    );
   }
 }

@@ -5,11 +5,13 @@ import 'l10n/app_settings.dart';
 import 'l10n/l10n.dart';
 import 'models/condition_result.dart';
 import 'models/health_profile.dart';
+import 'screens/breathe_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/level_style.dart';
 import 'screens/profile_screen.dart';
 import 'screens/sources_screen.dart';
+import 'screens/stats_screen.dart';
 import 'services/alert_orchestrator.dart';
 import 'services/database_helpers.dart';
 import 'services/health_services.dart';
@@ -105,7 +107,7 @@ class _HealthAlertAppState extends State<HealthAlertApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Health Alert',
+      title: 'FreeAir',
       debugShowCheckedModeBanner: false,
       locale: AppSettings.localeMaterial,
       supportedLocales: const [Locale('id'), Locale('en')],
@@ -117,12 +119,11 @@ class _HealthAlertAppState extends State<HealthAlertApp> {
       theme: temaAplikasi(),
       darkTheme: temaAplikasi(gelap: true),
       themeMode: AppSettings.themeMode,
-      // Latar radial Taskez dipasang di sini, bukan di ThemeData (yang memang
-      // tidak punya builder), supaya ikut berlaku di semua route dan dialog.
-      builder: (context, child) => DecoratedBox(
-        decoration: AppTones.of(context).radialLatar(),
-        child: child ?? const SizedBox.shrink(),
-      ),
+      // Latar gradasi langit + glow Just Breathe dipasang di sini, bukan di
+      // ThemeData (yang memang tidak punya builder), supaya ikut berlaku di
+      // semua route dan dialog.
+      builder: (context, child) =>
+          LatarJustBreathe(child: child ?? const SizedBox.shrink()),
       home: RootShell(
         orchestrator: widget.orchestrator,
         healthService: widget.healthService,
@@ -133,6 +134,9 @@ class _HealthAlertAppState extends State<HealthAlertApp> {
         '/history': (_) =>
             HistoryScreen(store: widget.store, pengamat: widget.orchestrator),
         '/sources': (_) => SourcesScreen(config: widget.orchestrator.config),
+        '/stats': (_) =>
+            StatsScreen(store: widget.store, pengamat: widget.orchestrator),
+        '/breathe': (_) => const BreatheScreen(),
       },
     );
   }
@@ -148,8 +152,8 @@ ThemeData temaAplikasi({bool gelap = false}) => bangunTema(
 );
 
 final ColorScheme _skemaTerang = ColorScheme.light(
-  primary: AppTones.terang.aksen,
-  onPrimary: AppTones.terang.onAksen,
+  primary: AppTones.terang.aksenDeep,
+  onPrimary: Colors.white,
   primaryContainer: AppTones.terang.aksenSoft,
   onPrimaryContainer: AppTones.terang.aksenDeep,
   secondary: AppTones.terang.mauve,
@@ -157,12 +161,12 @@ final ColorScheme _skemaTerang = ColorScheme.light(
   surface: AppTones.terang.card,
   onSurface: AppTones.terang.ink,
   surfaceContainerLowest: AppTones.terang.canvas,
-  surfaceContainerLow: const Color(0xFFFAF9FD),
-  surfaceContainer: const Color(0xFFF1EFF8),
-  surfaceContainerHigh: const Color(0xFFE9E6F3),
-  surfaceContainerHighest: const Color(0xFFE1DDEC),
+  surfaceContainerLow: const Color(0xFFF8FCFF),
+  surfaceContainer: const Color(0xFFEFF7FD),
+  surfaceContainerHigh: const Color(0xFFE6F1FA),
+  surfaceContainerHighest: const Color(0xFFDCEBF6),
   onSurfaceVariant: AppTones.terang.inkSoft,
-  outline: const Color(0xFF8B8FA0),
+  outline: const Color(0xFF8FA3B5),
   outlineVariant: AppTones.terang.line,
   error: AppTones.terang.bahaya,
 );
@@ -177,12 +181,12 @@ final ColorScheme _skemaGelap = ColorScheme.dark(
   surface: AppTones.gelap.card,
   onSurface: AppTones.gelap.ink,
   surfaceContainerLowest: AppTones.gelap.canvas,
-  surfaceContainerLow: const Color(0xFF1B1E25),
-  surfaceContainer: const Color(0xFF1F222B),
-  surfaceContainerHigh: const Color(0xFF252934),
-  surfaceContainerHighest: const Color(0xFF2B303C),
+  surfaceContainerLow: const Color(0xFF0B2436),
+  surfaceContainer: const Color(0xFF103049),
+  surfaceContainerHigh: const Color(0xFF153A56),
+  surfaceContainerHighest: const Color(0xFF1B4566),
   onSurfaceVariant: AppTones.gelap.inkSoft,
-  outline: const Color(0xFF8A93A8),
+  outline: const Color(0xFF5C7791),
   outlineVariant: AppTones.gelap.line,
   error: AppTones.gelap.bahaya,
 );
@@ -192,15 +196,15 @@ final ColorScheme _skemaGelap = ColorScheme.dark(
 /// Yang berbeda hanya [scheme] dan [t]; bentuk kartu, tipografi, dan navbar
 /// tetap sama supaya pindah mode tidak mengubah tata letak.
 ///
-/// Gaya visualnya diambil dari template Taskez: Lato di seluruh UI, latar
-/// radial dari sudut kiri atas, kartu radius 20 tanpa garis tepi keras,
-/// tombol/chip pil, dan indikator navbar berbentuk diamond.
+/// Gaya visualnya mengikuti Just Breathe: Plus Jakarta Sans, latar gradasi
+/// langit, kartu putih radius 24 dengan bayangan biru tipis, tombol pil, dan
+/// navigasi bawah mengambang.
 ThemeData bangunTema(AppTones t, ColorScheme scheme) {
   return ThemeData(
     colorScheme: scheme,
     useMaterial3: true,
-    fontFamily: 'Lato',
-    // Scaffold transparan supaya latar radial dari MaterialApp.builder
+    fontFamily: 'Plus Jakarta Sans',
+    // Scaffold transparan supaya latar gradasi dari MaterialApp.builder
     // terlihat di semua layar tanpa menyalin DecoratedBox di tiap screen.
     scaffoldBackgroundColor: Colors.transparent,
     splashColor: t.aksen.withValues(alpha: 0.10),
@@ -271,7 +275,9 @@ ThemeData bangunTema(AppTones t, ColorScheme scheme) {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: t.aksen,
+        // Teks putih di atas #1EB6F0 tidak lolos kontras, jadi tombol terisi
+        // memakai primary-strong #0877AE dari DESIGN.md.
+        backgroundColor: t.aksenDeep,
         foregroundColor: t.onAksen,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         textStyle: TextStyle(
@@ -287,10 +293,10 @@ ThemeData bangunTema(AppTones t, ColorScheme scheme) {
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
     ),
-    // Chip pil ala PrimaryTabButton: terpilih = biru penuh, tidak = panel.
+    // Chip pil: terpilih = biru kuat, tidak = panel es.
     chipTheme: ChipThemeData(
       backgroundColor: t.line.withValues(alpha: 0.45),
-      selectedColor: t.aksen,
+      selectedColor: t.aksenDeep,
       side: BorderSide(color: t.line),
       labelStyle: TextStyle(
         fontSize: 13,
@@ -331,7 +337,11 @@ ThemeData bangunTema(AppTones t, ColorScheme scheme) {
         color: t.ink.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(9),
       ),
-      textStyle: TextStyle(fontFamily: 'Lato', color: t.canvas, fontSize: 12),
+      textStyle: TextStyle(
+        fontFamily: 'Plus Jakarta Sans',
+        color: t.canvas,
+        fontSize: 12,
+      ),
     ),
   );
 }
@@ -393,7 +403,8 @@ class _RootShellState extends State<RootShell> {
             healthService: widget.healthService,
           ),
           HistoryScreen(store: widget.store, pengamat: widget.orchestrator),
-          SourcesScreen(config: widget.orchestrator.config),
+          const BreatheScreen(tertanam: true),
+          StatsScreen(store: widget.store, pengamat: widget.orchestrator),
           ProfileScreen(orchestrator: widget.orchestrator),
         ],
       ),
@@ -406,7 +417,8 @@ class _RootShellState extends State<RootShell> {
   }
 }
 
-/// Bar navigasi bawah: ikon lebih ekspresif + indikator diamond mauve.
+/// Navigasi bawah mengambang Just Breathe: pil putih dengan lima item, orb
+/// napas di tengah yang menonjol keluar dari pil.
 class BarBawah extends StatelessWidget {
   const BarBawah({
     required this.indeks,
@@ -419,25 +431,19 @@ class BarBawah extends StatelessWidget {
   final int? alertCount;
   final void Function(int) onPilih;
 
-  // Ikon yang lebih ekspresif dibanding ikon outline generik Material.
-  static const List<IconData> _ikonTab = [
-    Icons.monitor_heart_outlined,
-    Icons.history_edu_outlined,
-    Icons.library_books_outlined,
-    Icons.manage_accounts_outlined,
-  ];
-
-  static const List<IconData> _ikonTabAktif = [
-    Icons.monitor_heart_rounded,
-    Icons.history_edu_rounded,
-    Icons.library_books_rounded,
-    Icons.manage_accounts_rounded,
+  static const List<IconData> _ikon = [
+    Icons.air_rounded,
+    Icons.history_rounded,
+    Icons.self_improvement_rounded,
+    Icons.insights_rounded,
+    Icons.person_rounded,
   ];
 
   static const List<String> _kunciTab = [
     'nav.beranda',
     'nav.riwayat',
-    'nav.sumber',
+    'nav.napas',
+    'nav.statistik',
     'nav.profil',
   ];
 
@@ -446,37 +452,106 @@ class BarBawah extends StatelessWidget {
     final kamus = L10n.of(context);
     final tones = AppTones.of(context);
     final inset = MediaQuery.viewPaddingOf(context).bottom;
-    return Container(
-      height: AppLayout.tinggiBar + inset,
-      decoration: BoxDecoration(
-        color: tones.card.withValues(alpha: 0.97),
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AppLayout.radiusKartu),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: tones.bayangan.withValues(alpha: tones.shadowAlpha * 0.6),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      padding: EdgeInsets.fromLTRB(24, 10, 24, 4 + inset),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          for (var i = 0; i < _kunciTab.length; i++)
-            Expanded(
-              child: _ItemTab(
-                aktif: indeks == i,
-                label: kamus.t(_kunciTab[i]),
-                ikon: i == indeks ? _ikonTabAktif[i] : _ikonTab[i],
-                jumlah: i == 0 ? alertCount : null,
-                onPilih: () => onPilih(i),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 10 + inset),
+      child: SizedBox(
+        height: 78,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.bottomCenter,
+          children: [
+            Container(
+              height: 66,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              decoration: BoxDecoration(
+                color: tones.card.withValues(alpha: 0.97),
+                borderRadius: BorderRadius.circular(AppLayout.radiusPil),
+                boxShadow: [
+                  BoxShadow(
+                    color: tones.bayangan.withValues(alpha: 0.16),
+                    blurRadius: 28,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  for (var i = 0; i < _kunciTab.length; i++)
+                    Expanded(
+                      child: i == 2
+                          ? const SizedBox.shrink()
+                          : _ItemTab(
+                              aktif: indeks == i,
+                              label: kamus.t(_kunciTab[i]),
+                              ikon: _ikon[i],
+                              jumlah: i == 0 ? alertCount : null,
+                              onPilih: () => onPilih(i),
+                            ),
+                    ),
+                ],
               ),
             ),
-        ],
+            Positioned(
+              top: -8,
+              child: _OrbNapas(
+                aktif: indeks == 2,
+                label: kamus.t('nav.napas'),
+                onTap: () => onPilih(2),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OrbNapas extends StatelessWidget {
+  const _OrbNapas({
+    required this.aktif,
+    required this.label,
+    required this.onTap,
+  });
+
+  final bool aktif;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final tones = AppTones.of(context);
+    return Semantics(
+      button: true,
+      selected: aktif,
+      label: label,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: aktif ? 62 : 58,
+          height: aktif ? 62 : 58,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [tones.aksen, tones.aksenDeep],
+            ),
+            border: Border.all(color: tones.card, width: 4),
+            boxShadow: [
+              BoxShadow(
+                color: tones.aksen.withValues(alpha: aktif ? 0.45 : 0.30),
+                blurRadius: aktif ? 24 : 16,
+                spreadRadius: aktif ? 4 : 1,
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.self_improvement_rounded,
+            size: 26,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
@@ -500,46 +575,49 @@ class _ItemTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
-    final ikonColor = aktif ? tones.aksen : tones.inkSoft.withValues(alpha: 0.80);
-    final ikonTab = Icon(ikon, size: 26, color: ikonColor);
+    final ikonWidget = Icon(
+      ikon,
+      size: 22,
+      color: aktif ? tones.aksenDeep : tones.inkSoft,
+    );
     return Semantics(
       button: true,
       selected: aktif,
       label: label,
       child: InkWell(
         onTap: onPilih,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: EdgeInsets.symmetric(
-              horizontal: aktif ? 10 : 6, vertical: 4),
-          decoration: aktif
-              ? BoxDecoration(
-                  color: tones.aksenSoft,
-                  borderRadius: BorderRadius.circular(12),
-                )
-              : null,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              jumlah == null
-                  ? ikonTab
-                  : LencanaJumlah(ikon: ikon, jumlah: jumlah, ukuranIkon: 26),
-              const SizedBox(height: 3),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontFamily: 'Lato',
-                  fontSize: 10.5,
-                  fontWeight: aktif ? FontWeight.bold : FontWeight.w500,
-                  color: aktif ? tones.aksen : tones.inkSoft,
-                ),
+        borderRadius: BorderRadius.circular(AppLayout.radiusPil),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 36,
+              height: 30,
+              alignment: Alignment.center,
+              decoration: aktif
+                  ? BoxDecoration(
+                      color: tones.aksenSoft,
+                      borderRadius: BorderRadius.circular(AppLayout.radiusPil),
+                    )
+                  : null,
+              child: jumlah == null
+                  ? ikonWidget
+                  : LencanaJumlah(ikon: ikon, jumlah: jumlah!, ukuranIkon: 22),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: 'Plus Jakarta Sans',
+                fontSize: 10.5,
+                fontWeight: aktif ? FontWeight.w700 : FontWeight.w500,
+                color: aktif ? tones.aksenDeep : tones.inkSoft,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

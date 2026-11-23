@@ -7,6 +7,7 @@ import '../models/threshold_set.dart';
 import '../services/alert_orchestrator.dart';
 import '../services/baseline_engine.dart';
 import 'level_style.dart';
+import '../widgets/jb.dart';
 
 /// Profil tanpa satu pun ambang yang bisa diketik.
 ///
@@ -45,6 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final _namaController = TextEditingController();
   final _wilayahController = TextEditingController();
+  final _namaFokus = FocusNode();
 
   List<String> _kondisi = const [];
   String _kodeWilayah = '';
@@ -65,6 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _o.removeListener(_uatAmbang);
     _namaController.dispose();
     _wilayahController.dispose();
+    _namaFokus.dispose();
     super.dispose();
   }
 
@@ -175,10 +178,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           AppLayout.bawahKonten(context),
         ),
         children: [
+          // Top bar gaya Stitch: back pill + judul + simpan.
           Row(
             children: [
               if (bisaKembali) ...[
-                _TombolKembaliProfil(onTap: () => Navigator.pop(context)),
+                JbIconButton(
+                  icon: Icons.arrow_back_ios_new_rounded,
+                  tooltip: kamus.t('umum.kembali'),
+                  onTap: () => Navigator.pop(context),
+                ),
                 const SizedBox(width: 10),
               ],
               Expanded(
@@ -187,106 +195,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: AppTeks.judulHalaman(tones),
                 ),
               ),
-              // Tetap TextButton: jalan pintas menyimpan tanpa menggulir ke
-              // tombol besar di ujung daftar.
-              TextButton(
-                onPressed: _simpan,
-                child: Text(
-                  kamus.t('umum.simpan'),
-                  style: AppTeks.tautan(tones),
-                ),
-              ),
             ],
           ),
-          // Kepala profil template: avatar besar di tengah, nama, lalu satu
-          // baris keadaan profile.
+          // Identitas gaya Stitch: avatar + nama + chip kondisi + tombol edit.
           Column(
             children: [
-              const SizedBox(height: 24),
-              AvatarLingkaran(nama: nama, skala: 2.4),
+              const SizedBox(height: 18),
+              JbAvatar(name: nama, size: 92),
               const SizedBox(height: 14),
               Text(
                 nama,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: AppTeks.sapaan(tones).copyWith(fontSize: 32),
+                style: AppTeks.sapaan(tones).copyWith(fontSize: 24),
               ),
-              const SizedBox(height: 6),
-              Text(
-                _kondisi.isEmpty
-                    ? kamus.t('profil.pilih_kondisi')
-                    : _kondisi.join(' · '),
-                textAlign: TextAlign.center,
-                style: AppTeks.eyebrow(tones).copyWith(fontSize: 15),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: JbStatusPill(
+                      label: _kondisi.isEmpty
+                          ? kamus.t('profil.pilih_kondisi')
+                          : _kondisi.join(' · '),
+                      color: tones.aksenDeep,
+                      compact: true,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => _namaFokus.requestFocus(),
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: tones.card,
+                        shape: BoxShape.circle,
+                        boxShadow: tones.softShadow(),
+                      ),
+                      child: Icon(
+                        Icons.edit_rounded,
+                        size: 15,
+                        color: tones.inkSoft,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
           AppLayout.jarak,
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.lock_outline_rounded, size: 18, color: tones.aksen),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  kamus.t('profil.catatan_kunci'),
-                  style: AppTeks.isi(tones)
-                      .copyWith(fontSize: 13.5, color: tones.inkSoft),
+          // Catatan singkat: tidak ada ambang yang diketik manual.
+          JbCard(
+            color: tones.panel,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.lock_outline_rounded,
+                  size: 17,
+                  color: tones.aksenDeep,
                 ),
-              ),
-            ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    kamus.t('profil.catatan_kunci'),
+                    style: AppTeks.isiSoft(tones).copyWith(fontSize: 12.5),
+                  ),
+                ),
+              ],
+            ),
           ),
-          AppLayout.jarak,
-          SectionCard(
-            judul: kamus.t('profil.tampilan_judul'),
-            ikon: Icons.palette_outlined,
-            deskripsi: kamus.t('profil.tampilan_deskripsi'),
-            children: [
-              _LabelBaris(teks: kamus.t('profil.bahasa')),
-              Wrap(
-                runSpacing: 8,
-                children: [
-                  for (final kode in AppSettings.localeYangDidukung)
-                    PilTab(
-                      teks: _namaBahasa[kode]!,
-                      aktif: AppSettings.locale == kode,
-                      ukuranTeks: 14,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
-                      ),
-                      onTap: () => _uatBahasa(kode),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _LabelBaris(teks: kamus.t('profil.tema')),
-              Wrap(
-                runSpacing: 8,
-                children: [
-                  for (final kode in AppSettings.temaYangDidukung)
-                    PilTab(
-                      teks: kamus.t(_keyTema[kode]!),
-                      aktif: AppSettings.tema == kode,
-                      ukuranTeks: 14,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
-                      ),
-                      onTap: () => _uatTema(kode),
-                    ),
-                ],
-              ),
-            ],
-          ),
+          const SizedBox(height: 16),
+          // Kartu utama: kondisi yang dipantau + nama + wilayah.
           SectionCard(
             judul: kamus.t('profil.kondisi_judul'),
             ikon: Icons.monitor_heart_outlined,
-            deskripsi: kamus.t('profil.kondisi_deskripsi'),
+            deskripsi: kamus.t('profil.kondisi_kartu_sub'),
             children: [
               TextField(
                 controller: _namaController,
+                focusNode: _namaFokus,
                 decoration: InputDecoration(
                   labelText: kamus.t('profil.nama'),
                   prefixIcon: const Icon(
@@ -298,8 +289,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 16),
               _LabelBaris(teks: kamus.t('profil.pilih_kondisi')),
-              // Grup baris `ProfileTextOption`: ikon + nama + sakelar,
-              // pembatas 1 px, semuanya di dalam satu kontainer bersudut 10.
               GrupBaris(
                 warna: tones.panel,
                 children: [
@@ -338,9 +327,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
+          // Tampilan: bahasa dan tema.
+          SectionCard(
+            judul: kamus.t('profil.tampilan_judul'),
+            ikon: Icons.palette_outlined,
+            deskripsi: kamus.t('profil.tampilan_kartu_sub'),
+            children: [
+              _LabelBaris(teks: kamus.t('profil.bahasa')),
+              Wrap(
+                runSpacing: 8,
+                children: [
+                  for (final kode in AppSettings.localeYangDidukung)
+                    PilTab(
+                      teks: _namaBahasa[kode]!,
+                      aktif: AppSettings.locale == kode,
+                      ukuranTeks: 14,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      onTap: () => _uatBahasa(kode),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _LabelBaris(teks: kamus.t('profil.tema')),
+              Wrap(
+                runSpacing: 8,
+                children: [
+                  for (final kode in AppSettings.temaYangDidukung)
+                    PilTab(
+                      teks: kamus.t(_keyTema[kode]!),
+                      aktif: AppSettings.tema == kode,
+                      ukuranTeks: 14,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      onTap: () => _uatTema(kode),
+                    ),
+                ],
+              ),
+            ],
+          ),
+          // Kartu yang diminta: Sumber & Rujukan, satu pintu ke halaman sendiri.
+          JbCard(
+            onTap: () => Navigator.pushNamed(context, '/sources'),
+            child: Row(
+              children: [
+                KotakIkon(
+                  ikon: Icons.menu_book_rounded,
+                  warna: tones.aksenDeep,
+                  ukuran: 44,
+                  ukuranIkon: 22,
+                  tertutup: true,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        kamus.t('profil.resource_judul'),
+                        style: AppTeks.judulKartu(tones).copyWith(fontSize: 16),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        kamus.t('profil.sumber_kartu_sub'),
+                        style: AppTeks.isiSoft(tones).copyWith(fontSize: 12.5),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: tones.inkSoft),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Izin baca sensor: satu kartu, bukan daftar panjang.
           SectionCard(
             judul: kamus.t('profil.sumber_judul'),
             ikon: Icons.cloud_download_outlined,
+            deskripsi: kamus.t('profil.izin_kartu_sub'),
             children: [
               InkWell(
                 onTap: _mintaIzin,
@@ -405,19 +473,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ],
           ),
-          if (outcome == null)
-            SectionCard(
-              judul: kamus.t('profil.kalibrasi_judul'),
-              ikon: Icons.tune_rounded,
-              children: [
-                Text(
-                  kamus.t('profil.kalibrasi_kosong'),
-                  style: AppTeks.isi(tones)
-                      .copyWith(fontSize: 14.5, color: tones.inkSoft),
+          // Kalibrasi: ringkas di sini, detail di lembar yang dibuka.
+          _KartuKalibrasi(
+            outcome: outcome,
+            kamus: kamus,
+            tones: tones,
+            onTap: outcome == null
+                ? null
+                : () => _bukaKalibrasi(context, outcome),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: FilledButton(
+              onPressed: _simpan,
+              style: FilledButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppLayout.radiusPil),
                 ),
-              ],
-            )
-          else ...[
+                textStyle: const TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              child: Text(kamus.t('profil.simpan')),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Center(
+            child: TextButton.icon(
+              onPressed: () async {
+                await HealthProfile.fromConfig(_o.config.profilDefault).save();
+                await _muat();
+              },
+              icon: const Icon(Icons.restart_alt_rounded, size: 18),
+              label: Text(kamus.t('profil.reset')),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Ambang, kecukupan data, dan sumber angka dibuka dari kartu kalibrasi.
+  void _bukaKalibrasi(BuildContext context, CycleOutcome outcome) {
+    final kamus = L10n.of(context);
+    final theme = Theme.of(context);
+    final tones = AppTones.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _LembarKalibrasi(
+        judul: kamus.t('profil.kalibrasi_judul'),
+        sub: kamus.t('profil.kalibrasi_sheet_sub'),
+        anak: Column(
+          children: [
             SectionCard(
               judul: kamus.t('profil.ambang_judul'),
               ikon: Icons.tune_rounded,
@@ -531,7 +645,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 Divider(height: 21, thickness: 1, color: tones.line),
                 InkWell(
-                  onTap: () => Navigator.of(context).pushNamed('/sources'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.of(context).pushNamed('/sources');
+                  },
                   borderRadius: BorderRadius.circular(AppLayout.radiusGrup),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6),
@@ -567,36 +684,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ],
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: FilledButton(
-              onPressed: _simpan,
-              style: FilledButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppLayout.radiusPil),
-                ),
-                textStyle: const TextStyle(
-                  fontFamily: 'Lato',
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              child: Text(kamus.t('profil.simpan')),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Center(
-            child: TextButton.icon(
-              onPressed: () async {
-                await HealthProfile.fromConfig(_o.config.profilDefault).save();
-                await _muat();
-              },
-              icon: const Icon(Icons.restart_alt_rounded, size: 18),
-              label: Text(kamus.t('profil.reset')),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -683,7 +771,7 @@ class _AmbangBaris extends StatelessWidget {
               Text(
                 kamus.t('tier.${info.tier.name}'),
                 style: TextStyle(
-                  fontFamily: 'Lato',
+                  fontFamily: 'Plus Jakarta Sans',
                   fontSize: 11,
                   color: warna,
                   fontWeight: FontWeight.bold,
@@ -697,30 +785,164 @@ class _AmbangBaris extends StatelessWidget {
   }
 }
 
-/// Tombol kembali kecil untuk layar profil yang dibuka via pushNamed.
-class _TombolKembaliProfil extends StatelessWidget {
-  const _TombolKembaliProfil({required this.onTap});
-  final VoidCallback onTap;
+/// Ringkasan kalibrasi di halaman profil. Detailnya dibuka lewat [onTap].
+class _KartuKalibrasi extends StatelessWidget {
+  const _KartuKalibrasi({
+    required this.outcome,
+    required this.kamus,
+    required this.tones,
+    this.onTap,
+  });
+
+  final CycleOutcome? outcome;
+  final L10n kamus;
+  final AppTones tones;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return JbCard(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              KotakIkon(
+                ikon: Icons.tune_rounded,
+                warna: tones.aksenDeep,
+                ukuran: 44,
+                ukuranIkon: 22,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      kamus.t('profil.ambang_judul'),
+                      style: AppTeks.judulKartu(tones).copyWith(fontSize: 17),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      outcome == null
+                          ? kamus.t('profil.kalibrasi_kosong')
+                          : kamus.t('profil.kalibrasi_kartu_sub'),
+                      style: AppTeks.isiSoft(tones).copyWith(fontSize: 12.5),
+                    ),
+                  ],
+                ),
+              ),
+              if (onTap != null)
+                Icon(Icons.chevron_right_rounded, color: tones.inkSoft),
+            ],
+          ),
+          if (outcome != null) ...[
+            const SizedBox(height: 14),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                InfoChip(
+                  teks: kamus.t('profil.ambang_n', {
+                    'n': '${outcome!.ambang.provenance.length}',
+                  }),
+                  ikon: Icons.list_alt_rounded,
+                ),
+                InfoChip(
+                  teks: kamus.t('beranda.keyakinan_ringkas', {
+                    'level': outcome!.snapshot.confidence,
+                  }),
+                  ikon: Icons.verified_outlined,
+                  warna: outcome!.snapshot.confidence == 'HIGH'
+                      ? tones.aman
+                      : tones.waspada,
+                ),
+                InfoChip(
+                  teks: kamus.t('beranda.ambang_ringkas_2', {
+                    'tier': kamus.t(
+                      'tier.${outcome!.ambang.tierAmbangSuhu.name}',
+                    ),
+                  }),
+                  ikon: Icons.device_thermostat_rounded,
+                  warna: tones.tier(outcome!.ambang.tierAmbangSuhu.name),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Lembar detail kalibrasi: ambang, kecukupan data, dan sumber angka.
+class _LembarKalibrasi extends StatelessWidget {
+  const _LembarKalibrasi({
+    required this.judul,
+    required this.sub,
+    required this.anak,
+  });
+
+  final String judul;
+  final String sub;
+  final Widget anak;
 
   @override
   Widget build(BuildContext context) {
     final tones = AppTones.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        width: 36,
-        height: 36,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: tones.panel,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 18,
-          color: tones.ink,
-        ),
+    final kamus = L10n.of(context);
+    return Container(
+      height: MediaQuery.sizeOf(context).height * 0.92,
+      decoration: BoxDecoration(
+        color: tones.canvas,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 10),
+          Container(
+            width: 42,
+            height: 4,
+            decoration: BoxDecoration(
+              color: tones.line,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 12, 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(judul, style: AppTeks.judulHalaman(tones)),
+                      const SizedBox(height: 4),
+                      Text(
+                        sub,
+                        style: AppTeks.isiSoft(tones).copyWith(fontSize: 13.5),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                JbIconButton(
+                  icon: Icons.close_rounded,
+                  tooltip: kamus.t('umum.tutup'),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+              children: [anak],
+            ),
+          ),
+        ],
       ),
     );
   }

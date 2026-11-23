@@ -8,6 +8,7 @@ import 'table_history.dart';
 import 'table_home.dart';
 import 'table_profile.dart';
 import 'table_sources.dart';
+import 'table_stats.dart';
 
 /// Kamus teks aplikasi untuk satu bahasa.
 ///
@@ -33,6 +34,7 @@ class L10n {
       ...idHistory,
       ...idProfile,
       ...idSources,
+      ...idStats,
     },
     'en': {
       ...enCore,
@@ -41,6 +43,7 @@ class L10n {
       ...enHistory,
       ...enProfile,
       ...enSources,
+      ...enStats,
     },
   };
 

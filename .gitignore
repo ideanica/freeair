@@ -46,3 +46,9 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# OpenCode local config (contains API keys)
+opencode.json
+
+# OpenCode local config and design refs
+.stitch/
