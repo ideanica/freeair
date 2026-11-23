@@ -19,8 +19,9 @@ export 'database_helper.dart';
 class PrefsAlertStore implements DatabaseHelper {
   static const String _key = 'alert_history_v1';
   static const String _sampleKey = 'cycle_samples_v1';
-  /// Cukup untuk 30 hari, 96 siklus harian, dan 3 kondisi per siklus.
-  static const int _maxRows = 10000;
+  /// Mencakup lebih dari 7 hari pada interval 15 menit dan 3 kondisi.
+  /// 7 x 96 x 3 = 2.016 baris; sisakan ruang untuk variasi.
+  static const int _maxRows = 3000;
 
   /// 35 hari x 96 siklus 15 menit, dibulatkan ke bawah.
   static const int _maxSamples = 3000;
