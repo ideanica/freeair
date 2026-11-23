@@ -31,7 +31,7 @@ class _StatsScreenState extends State<StatsScreen> {
 
   Future<_StatsData> _loadStats() async {
     final results = await Future.wait([
-      widget.store.getRecentAlerts(limit: 10000),
+      widget.store.getRecentAlerts(limit: 3000),
       widget.store.getSamples(days: 8),
     ]);
     return _StatsData(
