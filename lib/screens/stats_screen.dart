@@ -222,7 +222,7 @@ class _StatsScreenState extends State<StatsScreen> {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                             decoration: BoxDecoration(
                               color: tones.aksenSoft.withValues(alpha: 0.28),
                               borderRadius: BorderRadius.circular(99),
@@ -230,7 +230,7 @@ class _StatsScreenState extends State<StatsScreen> {
                             child: Text(
                               kamus.t('statistik.tujuh_hari'),
                               style: AppTeks.labelSeksi(tones).copyWith(
-                                fontSize: 9,
+                                fontSize: 8.5,
                                 fontWeight: FontWeight.w700,
                                 color: tones.aksenDeep,
                               ),
@@ -654,7 +654,7 @@ class _MetricCard extends StatelessWidget {
                   const SizedBox(width: 5),
                   Flexible(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                       decoration: BoxDecoration(
                         color: color.withValues(alpha: 0.13),
                         borderRadius: BorderRadius.circular(99),
@@ -665,7 +665,7 @@ class _MetricCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: 'Plus Jakarta Sans',
-                          fontSize: 10,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.w700,
                           color: color,
                         ),
