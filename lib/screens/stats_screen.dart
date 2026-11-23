@@ -221,21 +221,7 @@ class _StatsScreenState extends State<StatsScreen> {
                               ),
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: tones.aksenSoft.withValues(alpha: 0.28),
-                              borderRadius: BorderRadius.circular(99),
-                            ),
-                            child: Text(
-                              kamus.t('statistik.tujuh_hari'),
-                              style: AppTeks.labelSeksi(tones).copyWith(
-                                fontSize: 8.5,
-                                fontWeight: FontWeight.w700,
-                                color: tones.aksenDeep,
-                              ),
-                            ),
-                          ),
+                          const SizedBox.shrink(),
                         ],
                       ),
                       const SizedBox(height: 18),
