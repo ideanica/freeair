@@ -1493,7 +1493,7 @@ class _SinyalChip extends StatelessWidget {
         statusIcon = Icons.radio_button_unchecked_rounded;
     }
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),
@@ -1502,14 +1502,14 @@ class _SinyalChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(ikon, size: 13, color: color),
-          const SizedBox(width: 5),
+          Icon(ikon, size: 11, color: color),
+          const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
               fontFamily: 'Plus Jakarta Sans',
-              fontSize: 11.5,
-              fontWeight: FontWeight.bold,
+              fontSize: 10.5,
+              fontWeight: FontWeight.w700,
               color: color,
             ),
           ),
