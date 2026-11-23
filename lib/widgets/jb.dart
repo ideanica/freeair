@@ -73,8 +73,8 @@ class JbStatusPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: compact ? 8 : 10,
-        vertical: compact ? 3 : 5,
+        horizontal: compact ? 7 : 9,
+        vertical: compact ? 2 : 4,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.14),
@@ -84,7 +84,7 @@ class JbStatusPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: compact ? 12 : 13, color: color),
+            Icon(icon, size: compact ? 11 : 12, color: color),
             const SizedBox(width: 4),
           ],
           Flexible(
@@ -94,7 +94,7 @@ class JbStatusPill extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontFamily: 'Plus Jakarta Sans',
-                fontSize: compact ? 10.5 : 11,
+                fontSize: compact ? 10 : 10.5,
                 fontWeight: FontWeight.w700,
                 color: color,
               ),
