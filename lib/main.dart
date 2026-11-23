@@ -8,6 +8,7 @@ import 'models/health_profile.dart';
 import 'screens/breathe_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/notifications_screen.dart';
 import 'screens/level_style.dart';
 import 'screens/profile_screen.dart';
 import 'screens/sources_screen.dart';
@@ -133,6 +134,7 @@ class _HealthAlertAppState extends State<HealthAlertApp> {
         '/profile': (_) => ProfileScreen(orchestrator: widget.orchestrator),
         '/history': (_) =>
             HistoryScreen(store: widget.store, pengamat: widget.orchestrator),
+        '/notifications': (_) => NotificationsScreen(store: widget.store),
         '/sources': (_) => SourcesScreen(config: widget.orchestrator.config),
         '/stats': (_) =>
             StatsScreen(store: widget.store, pengamat: widget.orchestrator),
