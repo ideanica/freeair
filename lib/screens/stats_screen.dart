@@ -32,7 +32,7 @@ class _StatsScreenState extends State<StatsScreen> {
   Future<_StatsData> _loadStats() async {
     final results = await Future.wait([
       widget.store.getRecentAlerts(limit: 10000),
-      widget.store.getSamples(days: 7),
+      widget.store.getSamples(days: 8),
     ]);
     return _StatsData(
       alerts: results[0] as List<AlertRecord>,
@@ -224,18 +224,18 @@ class _StatsScreenState extends State<StatsScreen> {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.all(3),
+                            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                             decoration: BoxDecoration(
-                              color: tones.aksenSoft.withValues(alpha: 0.24),
+                              color: tones.aksenSoft.withValues(alpha: 0.28),
                               borderRadius: BorderRadius.circular(99),
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _RentangChart(label: 'D', aktif: false, tones: tones),
-                                _RentangChart(label: 'W', aktif: true, tones: tones),
-                                _RentangChart(label: 'Y', aktif: false, tones: tones),
-                              ],
+                            child: Text(
+                              kamus.t('statistik.tujuh_hari'),
+                              style: AppTeks.labelSeksi(tones).copyWith(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: tones.aksenDeep,
+                              ),
                             ),
                           ),
                         ],
@@ -421,13 +421,12 @@ class _StatsScreenState extends State<StatsScreen> {
                           child: _MetricCard(
                             label: kamus.t('statistik.alert_7'),
                             value: '$perluPerhatian',
-                            unit: kamus.t('statistik.cek_unit'),
+                            unit: kamus.t('statistik.siklus_unit'),
                             badge: perluPerhatian == 0
                                 ? kamus.t('statistik.status_aman')
                                 : kamus.t('statistik.status_perhatian'),
                             color: perluPerhatian == 0 ? tones.aman : tones.waspada,
                             visual: _AlertWeekStrip(
-                              days: minggu,
                               samples: siklusMinggu,
                               color: tones.waspada,
                             ),
@@ -893,11 +892,9 @@ class _RingPainter extends CustomPainter {
 
 class _AlertWeekStrip extends StatelessWidget {
   const _AlertWeekStrip({
-    required this.days,
     required this.samples,
     required this.color,
   });
-  final List<_HariStat> days;
   final List<HealthSample> samples;
   final Color color;
 
@@ -948,40 +945,6 @@ class _AlertWeekStrip extends StatelessWidget {
             ],
           ),
       ],
-    );
-  }
-}
-
-class _RentangChart extends StatelessWidget {
-  const _RentangChart({
-    required this.label,
-    required this.aktif,
-    required this.tones,
-  });
-
-  final String label;
-  final bool aktif;
-  final AppTones tones;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minWidth: 30, minHeight: 28),
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-      decoration: BoxDecoration(
-        color: aktif ? tones.aksenSoft : Colors.transparent,
-        borderRadius: BorderRadius.circular(99),
-        boxShadow: aktif ? tones.softShadow() : null,
-      ),
-      child: Text(
-        label,
-        style: AppTeks.labelSeksi(tones).copyWith(
-          fontSize: 11,
-          fontWeight: FontWeight.w800,
-          color: aktif ? tones.aksenDeep : tones.inkSoft,
-        ),
-      ),
     );
   }
 }
