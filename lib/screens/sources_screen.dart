@@ -575,7 +575,7 @@ class _StatusChip extends StatelessWidget {
       _ => (status, tones.netral, Icons.info_outline_rounded),
     };
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.16),
         border: Border.all(color: color.withValues(alpha: 0.35), width: 1),
@@ -584,7 +584,7 @@ class _StatusChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(ikon, size: 12, color: color),
+          Icon(ikon, size: 10, color: color),
           const SizedBox(width: 4),
           Flexible(
             child: Text(
@@ -592,7 +592,7 @@ class _StatusChip extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Plus Jakarta Sans',
                 color: color,
-                fontSize: 10.5,
+                fontSize: 9.5,
                 fontWeight: FontWeight.w700,
               ),
             ),
