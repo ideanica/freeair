@@ -194,51 +194,9 @@ class _StatsScreenState extends State<StatsScreen> {
               ),
               children: [
                 kepala(),
-                IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: _StatTile(
-                          ikon: Icons.fact_check_outlined,
-                          label: kamus.t('statistik.total_cek'),
-                          nilai: '$total',
-                          warna: tones.aksenDeep,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _StatTile(
-                          ikon: Icons.calendar_today_rounded,
-                          label: kamus.t('statistik.hari'),
-                          nilai: '$hari',
-                          warna: tones.mauve,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _StatTile(
-                          ikon: Icons.notifications_active_outlined,
-                          label: kamus.t('statistik.alert_7'),
-                          nilai: '$perluPerhatian',
-                          warna: perluPerhatian == 0
-                              ? tones.aman
-                              : tones.waspada,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _RataKartu(
-                  rata: rata,
-                  total: total,
-                  kamus: kamus,
-                  tones: tones,
-                ),
                 JbSectionTitle(
                   title: kamus.t('statistik.tren'),
-                  padding: const EdgeInsets.only(top: 22, bottom: 6),
+                  padding: const EdgeInsets.only(top: 4, bottom: 6),
                 ),
                 Text(
                   kamus.t('statistik.tren_sub'),
@@ -246,10 +204,11 @@ class _StatsScreenState extends State<StatsScreen> {
                 ),
                 const SizedBox(height: 10),
                 JbCard(
+                  padding: const EdgeInsets.fromLTRB(14, 18, 14, 16),
                   child: Column(
                     children: [
                       SizedBox(
-                        height: 168,
+                        height: 184,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
@@ -265,31 +224,88 @@ class _StatsScreenState extends State<StatsScreen> {
                         ),
                       ),
                       if (terbaik != null && terburuk != null) ...[
-                        const SizedBox(height: 12),
-                        Divider(height: 1, color: tones.line),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _CatatanHari(
-                                label: kamus.t('statistik.terbaik'),
-                                hari: terbaik,
-                                warna: tones.aman,
+                        const SizedBox(height: 14),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: tones.aksenSoft.withValues(alpha: 0.22),
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _CatatanHari(
+                                  label: kamus.t('statistik.terbaik'),
+                                  hari: terbaik,
+                                  warna: tones.aman,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: _CatatanHari(
-                                label: kamus.t('statistik.terburuk'),
-                                hari: terburuk,
-                                warna: tones.waspada,
+                              Container(
+                                width: 1,
+                                height: 30,
+                                color: tones.line,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _CatatanHari(
+                                  label: kamus.t('statistik.terburuk'),
+                                  hari: terburuk,
+                                  warna: tones.waspada,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ],
                   ),
+                ),
+                JbSectionTitle(
+                  title: kamus.t('statistik.sub'),
+                  padding: const EdgeInsets.only(top: 22, bottom: 12),
+                ),
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.72,
+                  children: [
+                    _StatTile(
+                      ikon: Icons.fact_check_outlined,
+                      label: kamus.t('statistik.total_cek'),
+                      nilai: '$total',
+                      warna: tones.aksenDeep,
+                    ),
+                    _StatTile(
+                      ikon: Icons.calendar_today_rounded,
+                      label: kamus.t('statistik.hari'),
+                      nilai: '$hari',
+                      warna: tones.mauve,
+                    ),
+                    _StatTile(
+                      ikon: Icons.notifications_active_outlined,
+                      label: kamus.t('statistik.alert_7'),
+                      nilai: '$perluPerhatian',
+                      warna: perluPerhatian == 0 ? tones.aman : tones.waspada,
+                    ),
+                    _StatTile(
+                      ikon: Icons.speed_rounded,
+                      label: kamus.t('statistik.rata'),
+                      nilai: '$rata',
+                      warna: tones.level(
+                        rata <= 25
+                            ? AlertLevels.aman
+                            : (rata <= 50
+                                ? AlertLevels.waspada
+                                : AlertLevels.perhatian),
+                      ),
+                    ),
+                  ],
                 ),
                 JbSectionTitle(
                   title: kamus.t('statistik.distribusi'),
@@ -541,8 +557,8 @@ class _BatangHari extends StatelessWidget {
   final bool terbaik;
 
   IconData get _mood => switch (hari.level) {
-        'AMAN' => Icons.sentiment_satisfied_rounded,
-        'WASPADA' => Icons.sentiment_neutral_rounded,
+        'AMAN' => Icons.sentiment_very_satisfied_rounded,
+        'WASPADA' => Icons.sentiment_satisfied_rounded,
         'PERHATIAN' => Icons.sentiment_dissatisfied_rounded,
         'BAHAYA' => Icons.masks_rounded,
         _ => Icons.sentiment_neutral_rounded,
@@ -551,72 +567,100 @@ class _BatangHari extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final warna = tones.level(hari.level);
-    final tinggi = hari.jumlah == 0
+    final tinggiIsi = hari.jumlah == 0
         ? 4.0
-        : (hari.skor / 100 * 72).clamp(8.0, 72.0);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        if (terbaik && hari.jumlah > 0)
-          const Icon(Icons.auto_awesome, size: 10, color: Color(0xFF3CCB7F)),
-        if (hari.jumlah > 0)
-          Container(
-            width: 18,
-            height: 18,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: tones.softShadow(),
+        : (hari.skor / 100 * 124).clamp(9.0, 124.0);
+
+    return Semantics(
+      label: '${hari.label}, skor ${hari.skor}, ${hari.jumlah} pemeriksaan',
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          SizedBox(
+            height: 140,
+            child: Center(
+              child: Container(
+                width: 34,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: tones.aksenSoft.withValues(alpha: 0.30),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 550),
+                        curve: Curves.easeOutCubic,
+                        height: tinggiIsi,
+                        decoration: BoxDecoration(
+                          color: hari.jumlah == 0 ? tones.line : warna,
+                          borderRadius: BorderRadius.circular(100),
+                          boxShadow: hari.jumlah == 0
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: warna.withValues(alpha: 0.26),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                        ),
+                      ),
+                    ),
+                    if (hari.jumlah > 0)
+                      Positioned(
+                        top: 4,
+                        child: Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            color: tones.card,
+                            shape: BoxShape.circle,
+                            boxShadow: tones.softShadow(),
+                          ),
+                          child: Icon(_mood, size: 14, color: warna),
+                        ),
+                      ),
+                    if (terbaik && hari.jumlah > 0)
+                      Positioned(
+                        top: 0,
+                        right: -1,
+                        child: Icon(
+                          Icons.auto_awesome,
+                          size: 10,
+                          color: tones.aman,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
-            child: Icon(_mood, size: 12, color: warna),
           ),
-        const SizedBox(height: 2),
-        Text(
-          hari.jumlah == 0 ? '' : '${hari.skor}',
-          style: TextStyle(
-            fontFamily: 'Plus Jakarta Sans',
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: warna,
-          ),
-        ),
-        const SizedBox(height: 4),
-        // Termometer kapsul: track luar rounded + isian rounded di dalamnya.
-        Container(
-          height: 80,
-          margin: const EdgeInsets.symmetric(horizontal: 2),
-          decoration: BoxDecoration(
-            color: tones.line.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(100),
-          ),
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            height: hari.jumlah == 0 ? 4 : tinggi,
-            decoration: BoxDecoration(
-              color: hari.jumlah == 0 ? tones.line : warna,
-              borderRadius: BorderRadius.circular(100),
+          const SizedBox(height: 7),
+          Text(
+            hari.label,
+            maxLines: 1,
+            style: AppTeks.labelSeksi(tones).copyWith(
+              fontSize: 11,
+              color: terbaik ? tones.aksenDeep : tones.inkSoft,
+              fontWeight: terbaik ? FontWeight.w800 : FontWeight.w600,
             ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          hari.label,
-          style: AppTeks.labelSeksi(tones).copyWith(
-            fontSize: 10,
-            color: terbaik ? tones.aksenDeep : tones.inkSoft,
-            fontWeight: terbaik ? FontWeight.w700 : FontWeight.w500,
+          const SizedBox(height: 2),
+          Text(
+            hari.jumlah == 0 ? '·' : '${hari.skor}',
+            style: TextStyle(
+              fontFamily: 'Plus Jakarta Sans',
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
+              color: hari.jumlah == 0 ? tones.inkSoft : warna,
+            ),
           ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          hari.jumlah == 0 ? '·' : '${hari.jumlah}',
-          style: TextStyle(
-            fontFamily: 'Plus Jakarta Sans',
-            fontSize: 9,
-            color: tones.inkSoft,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
