@@ -574,7 +574,7 @@ class _FilterPill extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
               decoration: BoxDecoration(
                 color: aktif
                     ? Colors.white.withValues(alpha: 0.25)
@@ -585,7 +585,7 @@ class _FilterPill extends StatelessWidget {
                 '$jumlah',
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 9.5,
+                  fontSize: 9,
                   fontWeight: FontWeight.w700,
                   color: aktif ? Colors.white : tones.inkSoft,
                 ),
