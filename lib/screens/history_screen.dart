@@ -549,8 +549,8 @@ class _FilterPill extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: Container(
-        height: 40,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+        height: 34,
+        padding: const EdgeInsets.symmetric(horizontal: 11),
         decoration: BoxDecoration(
           gradient: aktif
               ? LinearGradient(colors: [tones.aksen, tones.aksenDeep])
@@ -567,14 +567,14 @@ class _FilterPill extends StatelessWidget {
               label,
               style: TextStyle(
                 fontFamily: 'Plus Jakarta Sans',
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
                 color: aktif ? Colors.white : tones.inkSoft,
               ),
             ),
             const SizedBox(width: 6),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
               decoration: BoxDecoration(
                 color: aktif
                     ? Colors.white.withValues(alpha: 0.25)
@@ -585,7 +585,7 @@ class _FilterPill extends StatelessWidget {
                 '$jumlah',
                 style: TextStyle(
                   fontFamily: 'Plus Jakarta Sans',
-                  fontSize: 10.5,
+                  fontSize: 9.5,
                   fontWeight: FontWeight.w700,
                   color: aktif ? Colors.white : tones.inkSoft,
                 ),
