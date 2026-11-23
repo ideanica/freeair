@@ -176,6 +176,7 @@ class _BreatheScreenState extends State<BreatheScreen>
             AppLayout.bawahKonten(context),
           ),
           children: [
+             const SizedBox(height: 16),
             _kepala(kamus, tones),
             const SizedBox(height: 18),
             _orb(kamus, tones),
