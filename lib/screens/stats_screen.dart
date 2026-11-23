@@ -222,7 +222,7 @@ class _StatsScreenState extends State<StatsScreen> {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: tones.aksenSoft.withValues(alpha: 0.28),
                               borderRadius: BorderRadius.circular(99),
@@ -230,8 +230,8 @@ class _StatsScreenState extends State<StatsScreen> {
                             child: Text(
                               kamus.t('statistik.tujuh_hari'),
                               style: AppTeks.labelSeksi(tones).copyWith(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
                                 color: tones.aksenDeep,
                               ),
                             ),
@@ -327,7 +327,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: tones.card.withValues(alpha: 0.72),
                           borderRadius: BorderRadius.circular(99),
@@ -336,9 +336,9 @@ class _StatsScreenState extends State<StatsScreen> {
                         child: Text(
                           kamus.t('statistik.tujuh_hari').toUpperCase(),
                           style: AppTeks.labelSeksi(tones).copyWith(
-                            fontSize: 9.5,
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 9,
+                            letterSpacing: 0.35,
+                            fontWeight: FontWeight.w700,
                             color: tones.inkSoft,
                           ),
                         ),
